@@ -244,7 +244,7 @@ export default function DriversPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-amber-400 hover:text-white"
+            className="h-8 w-8 text-amber-400 hover:text-foreground"
             onClick={() => handleOpenEdit(row)}
             title="Edit"
             disabled={row.status === "On Trip"}
@@ -254,7 +254,7 @@ export default function DriversPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-rose-500 hover:text-white"
+            className="h-8 w-8 text-rose-500 hover:text-foreground"
             onClick={() => handleOpenDelete(row)}
             title="Delete"
             disabled={row.status === "On Trip"}
@@ -273,7 +273,7 @@ export default function DriversPage() {
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <Users className="h-8 w-8 text-primary shrink-0" />
               <span>Drivers Directory</span>
             </h1>
@@ -288,7 +288,7 @@ export default function DriversPage() {
               <button
                 onClick={() => setViewType("grid")}
                 className={`p-1.5 rounded-md cursor-pointer ${
-                  viewType === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-white"
+                  viewType === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Grid View"
               >
@@ -297,7 +297,7 @@ export default function DriversPage() {
               <button
                 onClick={() => setViewType("table")}
                 className={`p-1.5 rounded-md cursor-pointer ${
-                  viewType === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-white"
+                  viewType === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Table View"
               >
@@ -370,7 +370,7 @@ export default function DriversPage() {
                         {d.name.split(" ").map(n => n[0]).join("")}
                       </div>
                       <div>
-                        <h3 className="font-extrabold text-white text-base leading-none mb-1 group-hover:text-primary transition-colors">{d.name}</h3>
+                        <h3 className="font-extrabold text-foreground text-base leading-none mb-1 group-hover:text-primary transition-colors">{d.name}</h3>
                         <p className="text-xs text-muted-foreground font-mono">{d.licenseCategory}</p>
                       </div>
                     </div>
@@ -379,17 +379,17 @@ export default function DriversPage() {
                     <div className="space-y-2 py-3 border-t border-b border-border/40 mb-4 text-xs font-semibold">
                       <div className="flex items-center text-muted-foreground justify-between">
                         <span className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5 text-slate-500" /> Lic Number:</span>
-                        <span className="font-mono text-white text-right">{d.licenseNumber}</span>
+                        <span className="font-mono text-foreground text-right">{d.licenseNumber}</span>
                       </div>
                       <div className="flex items-center text-muted-foreground justify-between">
                         <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-slate-500" /> Expiry:</span>
-                        <span className={`font-mono text-right ${expired ? "text-destructive font-black" : "text-white"}`}>
+                        <span className={`font-mono text-right ${expired ? "text-destructive font-black" : "text-foreground"}`}>
                           {d.expiryDate}
                         </span>
                       </div>
                       <div className="flex items-center text-muted-foreground justify-between">
                         <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-slate-500" /> Contact:</span>
-                        <span className="text-white text-right">{d.contactNumber}</span>
+                        <span className="text-foreground text-right">{d.contactNumber}</span>
                       </div>
                     </div>
                   </div>
@@ -399,7 +399,7 @@ export default function DriversPage() {
                     <div className="flex items-center justify-between text-xs mb-4">
                       <span className="text-muted-foreground flex items-center gap-1"><Star className="h-3.5 w-3.5 text-warning shrink-0" /> Safety Score</span>
                       <div className="flex items-center space-x-1.5">
-                        <span className="font-mono font-bold text-white text-sm">{d.safetyScore}/100</span>
+                        <span className="font-mono font-bold text-foreground text-sm">{d.safetyScore}/100</span>
                         <Badge variant={safetyInfo.variant} className="text-[9px] py-0 font-bold">
                           {safetyInfo.text}
                         </Badge>
@@ -431,7 +431,7 @@ export default function DriversPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-rose-400 hover:text-white shrink-0"
+                        className="h-8 w-8 text-rose-400 hover:text-foreground shrink-0"
                         onClick={() => handleOpenDelete(d)}
                         disabled={d.status === "On Trip"}
                       >

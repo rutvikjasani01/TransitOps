@@ -91,20 +91,22 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.05) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.02) 0, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.04) 0px, transparent 50%);
     background-attachment: fixed;
   }
   
   .dark body {
+    background-color: #020617; /* Deep slate-950 */
     background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,0.4) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.15) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 40%),
+      radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.04) 0px, transparent 35%);
     background-attachment: fixed;
   }
 }
@@ -112,34 +114,105 @@
 /* Glassmorphism Styles */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
 }
 
 .glass-panel-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(255, 255, 255, 0.7);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.06);
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -15px rgba(31, 38, 135, 0.08);
 }
 
 .dark .glass-panel-hover:hover {
   background: rgba(15, 23, 42, 0.65);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 20px 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Avatar & element glows */
+.glow-primary {
+  box-shadow: 0 0 12px -2px rgba(59, 130, 246, 0.35);
+}
+
+/* Page content entrance */
+.page-enter {
+  animation: slideUp 0.35s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Section card titles */
+.section-title {
+  @apply text-sm font-bold text-foreground uppercase tracking-wider;
+}
+
+/* Premium HUD Accents & Glows */
+.hud-glow-primary {
+  box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.25), 0 0 15px -8px rgba(59, 130, 246, 0.15);
+}
+.hud-glow-success {
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.25), 0 0 15px -8px rgba(16, 185, 129, 0.15);
+}
+.hud-glow-warning {
+  box-shadow: 0 0 30px -5px rgba(245, 158, 11, 0.25), 0 0 15px -8px rgba(245, 158, 11, 0.15);
+}
+.hud-glow-destructive {
+  box-shadow: 0 0 30px -5px rgba(239, 68, 68, 0.25), 0 0 15px -8px rgba(239, 68, 68, 0.15);
+}
+
+.hud-border-glow {
+  position: relative;
+}
+.hud-border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.dark .hud-border-glow::after {
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+}
+.dark .hud-border-glow-primary::after {
+  background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.45), rgba(99, 102, 241, 0.05));
+}
+.dark .hud-border-glow-success::after {
+  background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.45), rgba(16, 185, 129, 0.05));
+}
+.dark .hud-border-glow-warning::after {
+  background: linear-gradient(to bottom right, rgba(245, 158, 11, 0.45), rgba(245, 158, 11, 0.05));
+}
+.dark .hud-border-glow-destructive::after {
+  background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.45), rgba(239, 68, 68, 0.05));
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -147,20 +220,20 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 3px;
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.5);
+  background: rgba(156, 163, 175, 0.45);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.4);
+  background: rgba(75, 85, 99, 0.35);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(75, 85, 99, 0.6);
+  background: rgba(59, 130, 246, 0.5);
 }
 
 /* Shimmer animation for page loading skeleton */
@@ -202,3 +275,36 @@
     rgba(255, 255, 255, 0) 100%
   );
 }
+
+/* Dynamic Grid Overlay for Login */
+.hud-grid-bg {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+}
+.dark .hud-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59,130,246,0.03) 1px, transparent 1px);
+}
+
+/* Active Nav Background slide transitions */
+.nav-slide-active {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: hsl(var(--primary));
+  border-radius: inherit;
+  box-shadow: 0 4px 14px -2px hsl(var(--primary) / 0.35);
+}
+
+.dark .nav-slide-active {
+  box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.45);
+}
+
+/* Loading spinner ring */
+.loader-ring {
+  @apply h-10 w-10 animate-spin rounded-full border-[3px] border-primary/20 border-t-primary;
+}
+

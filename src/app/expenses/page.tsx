@@ -155,7 +155,7 @@ export default function ExpensesPage() {
       header: "Amount Charged",
       accessorKey: "amount",
       sortable: true,
-      cell: (row) => <span className="font-extrabold text-white text-xs">{formatCurrency(row.amount)}</span>
+      cell: (row) => <span className="font-extrabold text-foreground text-xs">{formatCurrency(row.amount)}</span>
     },
     {
       header: "Record Date",
@@ -172,7 +172,7 @@ export default function ExpensesPage() {
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-primary shrink-0" />
               <span>Accounts Payable</span>
             </h1>
@@ -195,7 +195,7 @@ export default function ExpensesPage() {
           
           <div className="rounded-xl border border-white/5 bg-slate-900/60 backdrop-blur-md p-3 text-center space-y-1">
             <span className="block text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Accumulated Cost</span>
-            <span className="block text-base font-black text-white">{formatCurrency(stats.total)}</span>
+            <span className="block text-base font-black text-foreground">{formatCurrency(stats.total)}</span>
           </div>
 
           <div className="rounded-xl border border-white/5 bg-slate-900/60 backdrop-blur-md p-3 text-center space-y-1">
@@ -231,7 +231,7 @@ export default function ExpensesPage() {
           {/* Donut chart */}
           <div className="lg:col-span-4 p-5 rounded-xl border border-border bg-card/45 glass-panel flex flex-col justify-between">
             <div className="space-y-1 pb-4">
-              <h3 className="font-bold text-white text-sm uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4 text-warning shrink-0 animate-pulse" /> Operating Cost Factor
               </h3>
               <p className="text-xs text-muted-foreground">Expense share ratio grouped by operational categories.</p>

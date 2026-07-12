@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} font-sans antialiased min-h-screen text-foreground transition-colors duration-300`}
+className={`${inter.variable} font-sans antialiased min-h-screen text-foreground transition-colors duration-300`}
       >
         <ThemeProvider>
           <TransitStateProvider>

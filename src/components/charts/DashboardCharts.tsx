@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="p-3 bg-slate-900/90 border border-white/10 rounded-lg shadow-lg text-xs backdrop-blur-md">
-        {label && <p className="font-bold text-white mb-1">{label}</p>}
+        {label && <p className="font-bold text-foreground mb-1">{label}</p>}
         {payload.map((entry: any, index: number) => (
           <p key={index} style={{ color: entry.color || entry.fill }} className="font-semibold py-0.5">
             {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
