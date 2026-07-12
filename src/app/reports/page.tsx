@@ -143,7 +143,7 @@ export default function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `transitops_${reportType.toLowerCase()}_audit_report.csv`);
+    link.setAttribute("download", `navix_${reportType.toLowerCase()}_audit_report.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -197,12 +197,12 @@ export default function ReportsPage() {
         <div className="hidden print:block border-b border-border/80 pb-4 mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">TransitOps Platform Report</span>
+              <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">NAVIX Platform Report</span>
               <p className="text-xs text-muted-foreground font-mono mt-1">Audit Type: {reportType} Performance Ledger | Date: 2026-07-12</p>
             </div>
             <div className="text-right">
               <span className="block font-bold text-xs uppercase text-slate-500 tracking-wider">Operational Audit</span>
-              <span className="text-sm font-semibold text-primary">TransitOps Core Services</span>
+              <span className="text-sm font-semibold text-primary">NAVIX Core Services</span>
             </div>
           </div>
         </div>
