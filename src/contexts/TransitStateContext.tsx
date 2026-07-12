@@ -68,7 +68,7 @@ export function TransitStateProvider({ children }: { children: React.ReactNode }
   const [currentRole, setCurrentRole] = useState<UserRole>("Fleet Manager");
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>({
     name: "John Doe",
-    email: "manager@transitops.com"
+    email: "manager@navix.com"
   });
 
   // State collections loaded from localStorage or fallback to constants
@@ -82,15 +82,15 @@ export function TransitStateProvider({ children }: { children: React.ReactNode }
 
   // Seed on mount
   useEffect(() => {
-    const localVehicles = localStorage.getItem("transitops_vehicles");
-    const localDrivers = localStorage.getItem("transitops_drivers");
-    const localTrips = localStorage.getItem("transitops_trips");
-    const localMaintenance = localStorage.getItem("transitops_maintenance");
-    const localFuel = localStorage.getItem("transitops_fuel");
-    const localExpenses = localStorage.getItem("transitops_expenses");
-    const localNotifications = localStorage.getItem("transitops_notifications");
-    const localRole = localStorage.getItem("transitops_role") as UserRole;
-    const localUser = localStorage.getItem("transitops_user");
+    const localVehicles = localStorage.getItem("navix_vehicles") || localStorage.getItem("transitops_vehicles");
+    const localDrivers = localStorage.getItem("navix_drivers") || localStorage.getItem("transitops_drivers");
+    const localTrips = localStorage.getItem("navix_trips") || localStorage.getItem("transitops_trips");
+    const localMaintenance = localStorage.getItem("navix_maintenance") || localStorage.getItem("transitops_maintenance");
+    const localFuel = localStorage.getItem("navix_fuel") || localStorage.getItem("transitops_fuel");
+    const localExpenses = localStorage.getItem("navix_expenses") || localStorage.getItem("transitops_expenses");
+    const localNotifications = localStorage.getItem("navix_notifications") || localStorage.getItem("transitops_notifications");
+    const localRole = (localStorage.getItem("navix_role") || localStorage.getItem("transitops_role")) as UserRole;
+    const localUser = localStorage.getItem("navix_user") || localStorage.getItem("transitops_user");
 
     setVehicles(localVehicles ? JSON.parse(localVehicles) : MOCK_VEHICLES);
     setDrivers(localDrivers ? JSON.parse(localDrivers) : MOCK_DRIVERS);
@@ -106,7 +106,8 @@ export function TransitStateProvider({ children }: { children: React.ReactNode }
 
   // Helpers to persist
   const save = (key: string, data: any) => {
-    localStorage.setItem(key, JSON.stringify(data));
+    const newKey = key.replace("transitops_", "navix_");
+    localStorage.setItem(newKey, JSON.stringify(data));
   };
 
   // Auth Functions
@@ -115,16 +116,16 @@ export function TransitStateProvider({ children }: { children: React.ReactNode }
     const user = { name: name || "User", email };
     setCurrentUser(user);
     setCurrentRole(role);
-    localStorage.setItem("transitops_role", role);
-    save("transitops_user", user);
+    localStorage.setItem("navix_role", role);
+    save("navix_user", user);
     addSystemNotification("success", "Logged In", `Welcome back, ${user.name}! Switched role to ${role}.`);
     return true;
   };
 
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem("transitops_user");
-    localStorage.removeItem("transitops_role");
+    localStorage.removeItem("navix_user");
+    localStorage.removeItem("navix_role");
   };
 
   // Notifications helper

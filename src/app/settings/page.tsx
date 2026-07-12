@@ -21,7 +21,7 @@ export default function SettingsPage() {
 
   // Profile forms state
   const [profileName, setProfileName] = useState(currentUser?.name || "Administrator");
-  const [profileEmail, setProfileEmail] = useState(currentUser?.email || "admin@transitops.com");
+  const [profileEmail, setProfileEmail] = useState(currentUser?.email || "admin@navix.com");
 
   // Password state
   const [currPassword, setCurrPassword] = useState("");
@@ -116,7 +116,7 @@ export default function SettingsPage() {
                         type="email"
                         value={profileEmail}
                         onChange={(e) => setProfileEmail(e.target.value)}
-                        placeholder="john@transitops.com"
+                        placeholder="john@navix.com"
                       />
                     </div>
                   </div>
