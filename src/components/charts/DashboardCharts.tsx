@@ -20,106 +20,139 @@ import {
 } from "recharts";
 
 const COLORS = {
-  primary:     "#6366f1",
-  secondary:   "#3b82f6",
-  success:     "#10b981",
-  warning:     "#f59e0b",
-  destructive: "#ef4444",
-  muted:       "#64748b",
-  purple:      "#8b5cf6",
-  cyan:        "#06b6d4",
+  primary: "#E85D75",     // rose-pink/red
+  secondary: "#F36A8A",   // light pink
+  success: "#16C784",     // green accent
+  warning: "#F59E0B",     // amber warning
+  destructive: "#EF4444", // red danger
+  muted: "#64748b",       // slate-500
+  purple: "#8b5cf6"       // violet-500
 };
 
+// Tooltip customization
 const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="px-3 py-2.5 bg-slate-900/95 border border-white/10 rounded-xl shadow-xl text-xs backdrop-blur-md min-w-[130px]">
-      {label && <p className="font-bold text-white/80 mb-1.5 pb-1.5 border-b border-white/10">{label}</p>}
-      {payload.map((entry: any, i: number) => (
-        <div key={i} className="flex items-center gap-2 py-0.5">
-          <span className="h-2 w-2 rounded-full shrink-0" style={{ background: entry.color || entry.fill }} />
-          <span className="text-slate-400">{entry.name}:</span>
-          <span className="font-bold text-white ml-auto pl-2">
-            {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+  if (active && payload && payload.length) {
+    return (
+      <div className="p-3 bg-slate-900/90 border border-white/10 rounded-lg shadow-lg text-xs backdrop-blur-md">
+        {label && <p className="font-bold text-white mb-1">{label}</p>}
+        {payload.map((entry: any, index: number) => (
+          <p key={index} style={{ color: entry.color || entry.fill }} className="font-semibold py-0.5">
+            {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
 };
 
-// 1. FLEET UTILIZATION — Area Chart
+// 1. FLEET UTILIZATION (Area Chart)
 export function FleetUtilizationChart({ data }: { data: any[] }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={260}>
+      <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="utilGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor={COLORS.primary} stopOpacity={0.35} />
-            <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0.02} />
+            <stop offset="5%" stopColor={COLORS.primary} stopOpacity={0.4} />
+            <stop offset="95%" stopColor={COLORS.primary} stopOpacity={0.0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-        <XAxis dataKey="date" stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 10 }} domain={[0, 100]} unit="%" axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: COLORS.primary, strokeWidth: 1, strokeDasharray: "4 4" }} />
-        <Area type="monotone" dataKey="utilization" name="Utilization" stroke={COLORS.primary} strokeWidth={2.5}
-          fillOpacity={1} fill="url(#utilGrad)" dot={false} activeDot={{ r: 5, fill: COLORS.primary, strokeWidth: 2, stroke: "#1e1b4b" }} />
+        <XAxis dataKey="date" stroke="currentColor" className="text-[10px] opacity-50" />
+        <YAxis stroke="currentColor" className="text-[10px] opacity-50" domain={[0, 100]} unit="%" />
+        <Tooltip content={<CustomTooltip />} />
+        <Area
+          type="monotone"
+          dataKey="utilization"
+          name="Fleet Utilization"
+          stroke={COLORS.primary}
+          strokeWidth={2}
+          fillOpacity={1}
+          fill="url(#utilGrad)"
+        />
       </AreaChart>
     </ResponsiveContainer>
   );
 }
 
-// 2. TRIP STATUS DISTRIBUTION — Donut Pie
+// 2. TRIP STATUS DISTRIBUTION (Pie Chart)
 export function TripStatusChart({ data }: { data: { name: string; value: number }[] }) {
   const scheme = [COLORS.warning, COLORS.primary, COLORS.success, COLORS.destructive];
+
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={260}>
       <PieChart>
-        <Pie data={data} cx="50%" cy="46%" innerRadius={55} outerRadius={80} paddingAngle={4} dataKey="value" strokeWidth={0}>
-          {data.map((_, index) => (
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={60}
+          outerRadius={80}
+          paddingAngle={4}
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={scheme[index % scheme.length]} />
           ))}
         </Pie>
         <Tooltip content={<CustomTooltip />} />
-        <Legend verticalAlign="bottom" height={32} iconType="circle" iconSize={7}
-          wrapperStyle={{ fontSize: "10px", opacity: 0.75, paddingTop: "8px" }} />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36} 
+          iconType="circle" 
+          iconSize={8}
+          wrapperStyle={{ fontSize: "11px", opacity: 0.8 }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );
 }
 
-// 3. EXPENSE BREAKDOWN — Solid Pie
+// 3. EXPENSE BREAKDOWN (Donut Pie Chart)
 export function ExpenseBreakdownChart({ data }: { data: { name: string; value: number }[] }) {
-  const scheme = [COLORS.secondary, COLORS.purple, COLORS.success, COLORS.warning, COLORS.cyan];
+  const scheme = [COLORS.primary, COLORS.secondary, COLORS.success, COLORS.warning, COLORS.purple];
+
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={260}>
       <PieChart>
-        <Pie data={data} cx="50%" cy="46%" innerRadius={0} outerRadius={78} paddingAngle={2} dataKey="value" strokeWidth={0}>
-          {data.map((_, index) => (
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={0}
+          outerRadius={75}
+          paddingAngle={2}
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={scheme[index % scheme.length]} />
           ))}
         </Pie>
         <Tooltip content={<CustomTooltip />} />
-        <Legend verticalAlign="bottom" height={32} iconType="circle" iconSize={7}
-          wrapperStyle={{ fontSize: "10px", opacity: 0.75, paddingTop: "8px" }} />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36} 
+          iconType="circle" 
+          iconSize={8}
+          wrapperStyle={{ fontSize: "11px", opacity: 0.8 }}
+        />
       </PieChart>
     </ResponsiveContainer>
   );
 }
 
-// 4. FUEL CONSUMPTION — Bar Chart
+// 4. FUEL CONSUMPTION BY VEHICLE (Bar Chart)
 export function FuelConsumptionChart({ data }: { data: any[] }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={data} margin={{ top: 8, right: 8, left: -14, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-        <XAxis dataKey="vehicle" stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
-        <YAxis stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(99,102,241,0.06)" }} />
-        <Bar dataKey="liters" name="Liters" radius={[5, 5, 0, 0]} maxBarSize={40}>
-          {data.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? COLORS.primary : COLORS.secondary} fillOpacity={0.9} />
+        <XAxis dataKey="vehicle" stroke="currentColor" className="text-[10px] opacity-50" />
+        <YAxis stroke="currentColor" className="text-[10px] opacity-50" label={{ value: 'Liters', angle: -90, position: 'insideLeft', style: {fontSize: 10, fill: 'currentColor', opacity: 0.5 } }} />
+        <Tooltip content={<CustomTooltip />} />
+        <Bar dataKey="liters" name="Liters Filled" fill={COLORS.secondary} radius={[4, 4, 0, 0]}>
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? COLORS.primary : COLORS.secondary} />
           ))}
         </Bar>
       </BarChart>
@@ -127,20 +160,32 @@ export function FuelConsumptionChart({ data }: { data: any[] }) {
   );
 }
 
-// 5. MONTHLY COST TREND — Line Chart
+// 5. MONTHLY COST TREND (Line/Area Trend)
 export function MonthlyCostTrendChart({ data }: { data: any[] }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <LineChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={260}>
+      <LineChart data={data} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-        <XAxis dataKey="month" stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis stroke="rgba(255,255,255,0.25)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }} />
-        <Legend wrapperStyle={{ fontSize: "10px", opacity: 0.75, paddingTop: "8px" }} />
-        <Line type="monotone" dataKey="operatingCost" name="Operating ($)" stroke={COLORS.primary} strokeWidth={2.5}
-          dot={false} activeDot={{ r: 5, fill: COLORS.primary, strokeWidth: 2, stroke: "#1e1b4b" }} />
-        <Line type="monotone" dataKey="maintenanceCost" name="Maintenance ($)" stroke={COLORS.destructive} strokeWidth={2}
-          strokeDasharray="5 4" dot={false} activeDot={{ r: 4, fill: COLORS.destructive }} />
+        <XAxis dataKey="month" stroke="currentColor" className="text-[10px] opacity-50" />
+        <YAxis stroke="currentColor" className="text-[10px] opacity-50" />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend wrapperStyle={{ fontSize: "11px", opacity: 0.8 }} />
+        <Line
+          type="monotone"
+          dataKey="operatingCost"
+          name="Operating Cost ($)"
+          stroke={COLORS.primary}
+          strokeWidth={3}
+          activeDot={{ r: 6 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="maintenanceCost"
+          name="Maintenance ($)"
+          stroke={COLORS.destructive}
+          strokeWidth={2}
+          strokeDasharray="4 4"
+        />
       </LineChart>
     </ResponsiveContainer>
   );

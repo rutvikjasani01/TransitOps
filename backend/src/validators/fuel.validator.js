@@ -1,0 +1,10 @@
+import { body, param, query } from "express-validator";
+const vehicleId = body("vehicleId").trim().notEmpty().withMessage("Vehicle is required.");
+const liters = body("liters").isFloat({ gt: 0, max: 10000 }).withMessage("Liters must be greater than zero.").toFloat();
+const cost = body("cost").isFloat({ gt: 0, max: 10000000 }).withMessage("Cost must be greater than zero.").toFloat();
+const odometer = body("odometer").isFloat({ min: 0 }).withMessage("Odometer cannot be negative.").toFloat();
+const date = body("date").isISO8601({ strict: true }).withMessage("Date must be a valid YYYY-MM-DD date.");
+export const fuelLogIdValidator = [param("fuelLogId").trim().notEmpty().withMessage("Fuel log id is required.")];
+export const createFuelLogValidator = [vehicleId, liters, cost, odometer, date];
+export const updateFuelLogValidator = [vehicleId.optional(), liters.optional(), cost.optional(), odometer.optional(), date.optional(), body().custom((value) => Object.keys(value).some((key) => ["vehicleId", "liters", "cost", "odometer", "date"].includes(key))).withMessage("At least one editable fuel-log field is required.")];
+export const listFuelLogsValidator = [query("vehicleId").optional().trim().notEmpty(), query("from").optional().isISO8601({ strict: true }), query("to").optional().isISO8601({ strict: true })];

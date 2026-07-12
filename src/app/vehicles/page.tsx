@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { 
   Truck, PlusCircle, Pencil, Trash2, Eye, 
-  Wrench, Activity, Gauge, DollarSign
+  Wrench, Activity, Fuel, Gauge, DollarSign, Calendar
 } from "lucide-react";
 import { Shell } from "@/components/layout/Shell";
 import { DataTable, Column, FilterConfig } from "@/components/ui/Table";
@@ -15,25 +15,30 @@ import { useTransitState } from "@/contexts/TransitStateContext";
 import { useToast } from "@/contexts/ToastContext";
 import { Vehicle } from "@/types";
 import { formatCurrency, formatNumber } from "@/lib/utils";
-import { cn } from "@/lib/utils";
-
-const statusConfig = {
-  Available: { variant: "success" as const, dot: true },
-  "On Trip": { variant: "warning" as const, dot: true },
-  "In Shop": { variant: "destructive" as const, dot: true },
-  Retired: { variant: "secondary" as const, dot: false },
-};
 
 export default function VehiclesPage() {
-  const { vehicles, addVehicle, updateVehicle, deleteVehicle, trips, maintenanceLogs, fuelLogs } = useTransitState();
+  const { 
+    vehicles, 
+    addVehicle, 
+    updateVehicle, 
+    deleteVehicle,
+    trips,
+    maintenanceLogs,
+    fuelLogs
+  } = useTransitState();
+
   const { toast } = useToast();
 
+  // Modals state
   const [formOpen, setFormOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  
+  // Selected records
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
+  // Form inputs state
   const [regNum, setRegNum] = useState("");
   const [name, setName] = useState("");
   const [model, setModel] = useState("");
@@ -45,236 +50,378 @@ export default function VehiclesPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resetForm = () => {
-    setRegNum(""); setName(""); setModel(""); setType("Truck");
-    setCapacity(0); setOdometer(0); setCost(0); setStatus("Available");
-    setEditingVehicle(null); setErrors({});
+    setRegNum("");
+    setName("");
+    setModel("");
+    setType("Truck");
+    setCapacity(0);
+    setOdometer(0);
+    setCost(0);
+    setStatus("Available");
+    setEditingVehicle(null);
+    setErrors({});
   };
 
-  const handleOpenCreate = () => { resetForm(); setFormOpen(true); };
+  const handleOpenCreate = () => {
+    resetForm();
+    setFormOpen(true);
+  };
 
   const handleOpenEdit = (v: Vehicle) => {
-    setEditingVehicle(v); setRegNum(v.registrationNumber); setName(v.name);
-    setModel(v.model); setType(v.type); setCapacity(v.maxCapacity);
-    setOdometer(v.odometer); setCost(v.acquisitionCost); setStatus(v.status);
-    setErrors({}); setFormOpen(true);
+    setEditingVehicle(v);
+    setRegNum(v.registrationNumber);
+    setName(v.name);
+    setModel(v.model);
+    setType(v.type);
+    setCapacity(v.maxCapacity);
+    setOdometer(v.odometer);
+    setCost(v.acquisitionCost);
+    setStatus(v.status);
+    setErrors({});
+    setFormOpen(true);
   };
 
-  const handleOpenDetails = (v: Vehicle) => { setSelectedVehicle(v); setDetailsOpen(true); };
-  const handleOpenDelete = (v: Vehicle) => { setSelectedVehicle(v); setDeleteOpen(true); };
+  const handleOpenDetails = (v: Vehicle) => {
+    setSelectedVehicle(v);
+    setDetailsOpen(true);
+  };
 
+  const handleOpenDelete = (v: Vehicle) => {
+    setSelectedVehicle(v);
+    setDeleteOpen(true);
+  };
+
+  // Submit Handler
   const handleSaveVehicle = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
+
     if (!regNum) newErrors.regNum = "Registration Number is required.";
     if (!name) newErrors.name = "Vehicle Name is required.";
     if (!model) newErrors.model = "Model Year is required.";
     if (capacity <= 0) newErrors.capacity = "Load Capacity must be positive.";
-    if (odometer < 0) newErrors.odometer = "Odometer cannot be negative.";
+    if (odometer < 0) newErrors.odometer = "Odometer reading cannot be negative.";
     if (cost <= 0) newErrors.cost = "Acquisition cost must be positive.";
-    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
 
-    const payload = { registrationNumber: regNum, name, model, type, maxCapacity: capacity, odometer, acquisitionCost: cost, status };
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const payload = {
+      registrationNumber: regNum,
+      name,
+      model,
+      type,
+      maxCapacity: capacity,
+      odometer,
+      acquisitionCost: cost,
+      status
+    };
 
     if (editingVehicle) {
+      // Edit mode
       const res = updateVehicle(editingVehicle.id, payload);
-      if (res.success) { toast(`Vehicle ${regNum} updated successfully.`, "success"); setFormOpen(false); }
-      else { setErrors({ regNum: res.error || "" }); toast(res.error || "Update failed.", "error"); }
+      if (res.success) {
+        toast(`Vehicle ${regNum} updated successfully.`, "success");
+        setFormOpen(false);
+      } else {
+        setErrors({ regNum: res.error || "" });
+        toast(res.error || "Update failed.", "error");
+      }
     } else {
+      // Add mode
       const res = addVehicle(payload);
-      if (res.success) { toast(`New vehicle ${regNum} added.`, "success"); setFormOpen(false); }
-      else { setErrors({ regNum: res.error || "" }); toast(res.error || "Save failed.", "error"); }
+      if (res.success) {
+        toast(`New vehicle ${regNum} added.`, "success");
+        setFormOpen(false);
+      } else {
+        setErrors({ regNum: res.error || "" });
+        toast(res.error || "Save failed.", "error");
+      }
     }
   };
 
   const handleDeleteConfirm = () => {
     if (!selectedVehicle) return;
     const res = deleteVehicle(selectedVehicle.id);
-    if (res.success) { toast(`Vehicle ${selectedVehicle.registrationNumber} deleted.`, "success"); setDeleteOpen(false); }
-    else { toast(res.error || "Deletion restricted.", "error"); setDeleteOpen(false); }
+    if (res.success) {
+      toast(`Vehicle ${selectedVehicle.registrationNumber} deleted successfully.`, "success");
+      setDeleteOpen(false);
+    } else {
+      toast(res.error || "Deletion restricted.", "error");
+      setDeleteOpen(false);
+    }
   };
 
+  // Filter lists setup
   const filters: FilterConfig[] = [
-    { key: "type", label: "Type", options: [{ label: "Semi Trucks", value: "Semi" }, { label: "Box Trucks", value: "Box Truck" }, { label: "Vans", value: "Van" }] },
-    { key: "status", label: "Status", options: [{ label: "Available", value: "Available" }, { label: "On Trip", value: "On Trip" }, { label: "In Shop", value: "In Shop" }, { label: "Retired", value: "Retired" }] }
+    {
+      key: "type",
+      label: "Type",
+      options: [
+        { label: "Semi Trucks", value: "Semi" },
+        { label: "Box Trucks", value: "Box Truck" },
+        { label: "Vans", value: "Van" }
+      ]
+    },
+    {
+      key: "status",
+      label: "Status",
+      options: [
+        { label: "Available", value: "Available" },
+        { label: "On Trip", value: "On Trip" },
+        { label: "In Shop", value: "In Shop" },
+        { label: "Retired", value: "Retired" }
+      ]
+    }
   ];
 
+  // Column mapping
   const columns: Column<Vehicle>[] = [
     {
-      header: "Registration",
+      header: "Reg Number",
       accessorKey: "registrationNumber",
       sortable: true,
       cell: (row) => (
-        <span className="font-mono font-bold tracking-wider text-primary text-xs bg-primary/8 px-2 py-0.5 rounded-lg border border-primary/15">
-          {row.registrationNumber}
-        </span>
+        <span className="font-mono font-bold tracking-wider text-primary text-xs uppercase">{row.registrationNumber}</span>
       )
     },
     {
-      header: "Vehicle",
+      header: "Name / Type",
       accessorKey: "name",
       cell: (row) => (
         <div>
-          <span className="block font-semibold text-sm">{row.name}</span>
-          <span className="text-[10px] text-muted-foreground">{row.type} · {row.model}</span>
+          <span className="block font-bold">{row.name}</span>
+          <span className="text-[10px] text-muted-foreground">{row.type} | {row.model}</span>
         </div>
       )
     },
     {
-      header: "Max Load",
+      header: "Load Limit",
       accessorKey: "maxCapacity",
       sortable: true,
-      cell: (row) => <span className="font-medium text-xs">{formatNumber(row.maxCapacity)} kg</span>
+      cell: (row) => <span>{formatNumber(row.maxCapacity)} kg</span>
     },
     {
-      header: "Odometer",
+      header: "Mileage",
       accessorKey: "odometer",
       sortable: true,
       cell: (row) => (
-        <span className="font-mono text-xs flex items-center gap-1 text-muted-foreground">
-          <Gauge className="h-3 w-3" />{formatNumber(row.odometer)} km
+        <span className="flex items-center space-x-1 font-mono text-xs">
+          <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
+          <span>{formatNumber(row.odometer)} km</span>
         </span>
       )
     },
     {
-      header: "Acquisition",
+      header: "Purchase Cost",
       accessorKey: "acquisitionCost",
       sortable: true,
-      cell: (row) => <span className="text-xs font-semibold">{formatCurrency(row.acquisitionCost)}</span>
+      cell: (row) => <span>{formatCurrency(row.acquisitionCost)}</span>
     },
     {
       header: "Status",
       accessorKey: "status",
       cell: (row) => {
-        const cfg = statusConfig[row.status];
-        return <Badge variant={cfg.variant} dot={cfg.dot} className="text-[10px]">{row.status}</Badge>;
+        const variants = {
+          Available: "success",
+          "On Trip": "warning",
+          "In Shop": "destructive",
+          Retired: "secondary"
+        };
+        return (
+          <Badge variant={variants[row.status] as any} className="text-[10px] font-bold px-2.5 py-0.5">
+            {row.status}
+          </Badge>
+        );
       }
     },
     {
-      header: "",
+      header: "Actions",
       cell: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg"
-            onClick={() => handleOpenDetails(row)} title="Details">
-            <Eye className="h-3.5 w-3.5" />
+        <div className="flex items-center space-x-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 text-primary hover:bg-primary/10"
+            onClick={() => handleOpenDetails(row)}
+            title="Details"
+          >
+            <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg"
-            onClick={() => handleOpenEdit(row)} title="Edit" disabled={row.status === "On Trip"}>
-            <Pencil className="h-3.5 w-3.5" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 text-amber-400 hover:text-white"
+            onClick={() => handleOpenEdit(row)}
+            title="Edit"
+            disabled={row.status === "On Trip"}
+          >
+            <Pencil className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg"
-            onClick={() => handleOpenDelete(row)} title="Delete" disabled={row.status === "On Trip"}>
-            <Trash2 className="h-3.5 w-3.5" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 text-rose-500 hover:text-white"
+            onClick={() => handleOpenDelete(row)}
+            title="Delete"
+            disabled={row.status === "On Trip"}
+          >
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       )
     }
   ];
 
+  // Selected vehicle stats helper
   const detailsStats = useMemo(() => {
     if (!selectedVehicle) return { tripsCount: 0, serviceCount: 0, totalFuel: 0 };
+    const vTrips = trips.filter(t => t.vehicleId === selectedVehicle.id);
+    const vService = maintenanceLogs.filter(m => m.vehicleId === selectedVehicle.id);
+    const vFuel = fuelLogs.filter(f => f.vehicleId === selectedVehicle.id).reduce((sum, f) => sum + f.liters, 0);
+
     return {
-      tripsCount: trips.filter(t => t.vehicleId === selectedVehicle.id).length,
-      serviceCount: maintenanceLogs.filter(m => m.vehicleId === selectedVehicle.id).length,
-      totalFuel: fuelLogs.filter(f => f.vehicleId === selectedVehicle.id).reduce((sum, f) => sum + f.liters, 0)
+      tripsCount: vTrips.length,
+      serviceCount: vService.length,
+      totalFuel: vFuel
     };
   }, [selectedVehicle, trips, maintenanceLogs, fuelLogs]);
-
-  // Fleet summary stats
-  const fleetStats = useMemo(() => ({
-    available: vehicles.filter(v => v.status === "Available").length,
-    onTrip: vehicles.filter(v => v.status === "On Trip").length,
-    inShop: vehicles.filter(v => v.status === "In Shop").length,
-    retired: vehicles.filter(v => v.status === "Retired").length,
-  }), [vehicles]);
 
   return (
     <Shell>
       <div className="space-y-6">
-
-        {/* Header */}
+        
+        {/* Title Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5 mb-1">
-              <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
-                <Truck className="h-5 w-5 text-primary" />
-              </div>
-              <h1 className="text-2xl font-black tracking-tight">Fleet Inventory</h1>
-            </div>
-            <p className="text-sm text-muted-foreground pl-[52px]">
-              Manage vehicle status, capacity limits, and service history.
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+              <Truck className="h-8 w-8 text-primary shrink-0" />
+              <span>Fleet Inventory</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Manage vehicle status, limits, service details, and tracking records.
             </p>
           </div>
-          <Button onClick={handleOpenCreate} className="gap-2 self-start sm:self-auto">
-            <PlusCircle className="h-4 w-4" /> Add Vehicle
+          <Button 
+            onClick={handleOpenCreate}
+            className="gap-1.5 self-start sm:self-auto h-10 px-4"
+          >
+            <PlusCircle className="h-4.5 w-4.5" />
+            Add Vehicle
           </Button>
         </div>
 
-        {/* Status Summary Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: "Available", count: fleetStats.available, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
-            { label: "On Trip", count: fleetStats.onTrip, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
-            { label: "In Shop", count: fleetStats.inShop, color: "text-rose-500", bg: "bg-rose-500/10 border-rose-500/20" },
-            { label: "Retired", count: fleetStats.retired, color: "text-slate-400", bg: "bg-slate-500/10 border-slate-500/20" },
-          ].map((s) => (
-            <div key={s.label} className={cn("rounded-xl border px-4 py-3 flex items-center justify-between", s.bg)}>
-              <span className="text-xs font-semibold text-muted-foreground">{s.label}</span>
-              <span className={cn("text-xl font-black", s.color)}>{s.count}</span>
-            </div>
-          ))}
-        </div>
+        {/* Data Table */}
+        <DataTable
+          data={vehicles}
+          columns={columns}
+          filters={filters}
+          searchKey="registrationNumber"
+          searchPlaceholder="Search registration..."
+        />
 
-        <DataTable data={vehicles} columns={columns} filters={filters}
-          searchKey="registrationNumber" searchPlaceholder="Search registration..." />
       </div>
 
       {/* CREATE / EDIT DIALOG */}
-      <Dialog isOpen={formOpen} onClose={() => setFormOpen(false)}
+      <Dialog
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
         title={editingVehicle ? "Update Fleet Vehicle" : "Add Vehicle to Fleet"}
-        description={editingVehicle ? "Modify configuration details of an existing vehicle." : "Input specifications and capacity limits for the new hauler."}>
+        description={editingVehicle ? "Modify configuration details of an existing vehicle." : "Input specifications and capacity limits for the new hauler."}
+      >
         <form onSubmit={handleSaveVehicle} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="reg">Registration Number</Label>
-              <Input id="reg" value={regNum} onChange={(e) => setRegNum(e.target.value)} placeholder="TX-908-A" error={errors.regNum} disabled={!!editingVehicle} />
+              <Input
+                id="reg"
+                value={regNum}
+                onChange={(e) => setRegNum(e.target.value)}
+                placeholder="TX-908-A"
+                error={errors.regNum}
+                disabled={!!editingVehicle}
+              />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vtype">Vehicle Type</Label>
-              <Select id="vtype" value={type} onChange={(e) => setType(e.target.value as any)}>
+              <Select
+                id="vtype"
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+              >
                 <option value="Semi">Semi</option>
                 <option value="Box Truck">Box Truck</option>
                 <option value="Van">Van</option>
               </Select>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vname">Vehicle Name</Label>
-              <Input id="vname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Volvo FH16" error={errors.name} />
+              <Input
+                id="vname"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Volvo FH16"
+                error={errors.name}
+              />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vmodel">Model Year</Label>
-              <Input id="vmodel" value={model} onChange={(e) => setModel(e.target.value)} placeholder="FH16 2024" error={errors.model} />
+              <Input
+                id="vmodel"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="FH16 2024"
+                error={errors.model}
+              />
             </div>
           </div>
+
           <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vcap">Capacity (kg)</Label>
-              <Input id="vcap" type="number" value={capacity || ""} onChange={(e) => setCapacity(Number(e.target.value))} error={errors.capacity} />
+              <Input
+                id="vcap"
+                type="number"
+                value={capacity || ""}
+                onChange={(e) => setCapacity(Number(e.target.value))}
+                error={errors.capacity}
+              />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vodo">Odometer (km)</Label>
-              <Input id="vodo" type="number" value={odometer || ""} onChange={(e) => setOdometer(Number(e.target.value))} error={errors.odometer} />
+              <Input
+                id="vodo"
+                type="number"
+                value={odometer || ""}
+                onChange={(e) => setOdometer(Number(e.target.value))}
+                error={errors.odometer}
+              />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vcost">Cost ($)</Label>
-              <Input id="vcost" type="number" value={cost || ""} onChange={(e) => setCost(Number(e.target.value))} error={errors.cost} />
+              <Input
+                id="vcost"
+                type="number"
+                value={cost || ""}
+                onChange={(e) => setCost(Number(e.target.value))}
+                error={errors.cost}
+              />
             </div>
           </div>
+
           {editingVehicle && (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="vstatus">Operational Status</Label>
-              <Select id="vstatus" value={status} onChange={(e) => setStatus(e.target.value as any)}>
+              <Select
+                id="vstatus"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as any)}
+              >
                 <option value="Available">Available</option>
                 <option value="On Trip" disabled>On Trip</option>
                 <option value="In Shop">In Shop</option>
@@ -282,81 +429,131 @@ export default function VehiclesPage() {
               </Select>
             </div>
           )}
-          <div className="flex justify-end gap-3 pt-4 border-t border-border/40">
-            <Button variant="outline" type="button" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button variant="primary" type="submit">{editingVehicle ? "Update Specifications" : "Register Vehicle"}</Button>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t border-border/50">
+            <Button variant="outline" type="button" onClick={() => setFormOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit">
+              {editingVehicle ? "Update Specifications" : "Register Vehicle"}
+            </Button>
           </div>
         </form>
       </Dialog>
 
-      {/* DETAILS DIALOG */}
-      <Dialog isOpen={detailsOpen} onClose={() => setDetailsOpen(false)}
-        title="Vehicle Specifications Sheet" description="Comprehensive technical and operational details." size="lg">
+      {/* VIEW DETAILS OVERLAY */}
+      <Dialog
+        isOpen={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        title="Vehicle Specifications Sheet"
+        description="Comprehensive technical and operational details log."
+        size="lg"
+      >
         {selectedVehicle && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-muted/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
-                  <Truck className="h-5 w-5 text-primary" />
+          <div className="space-y-6">
+            
+            {/* Header Plate */}
+            <div className="p-4 rounded-xl border border-white/5 bg-slate-900/60 backdrop-blur-md flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-xl text-primary shrink-0">
+                  <Truck className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-base">{selectedVehicle.name}</h4>
-                  <p className="text-xs text-muted-foreground font-mono">{selectedVehicle.registrationNumber} · {selectedVehicle.type}</p>
+                  <h4 className="font-bold text-white text-base leading-none mb-1">{selectedVehicle.name}</h4>
+                  <p className="text-xs text-muted-foreground font-mono">{selectedVehicle.registrationNumber} • {selectedVehicle.type}</p>
                 </div>
               </div>
-              <Badge variant={statusConfig[selectedVehicle.status].variant} dot={statusConfig[selectedVehicle.status].dot} className="px-3 py-1">{selectedVehicle.status}</Badge>
+              <Badge 
+                variant={
+                  selectedVehicle.status === "Available" ? "success" : 
+                  selectedVehicle.status === "On Trip" ? "warning" : 
+                  selectedVehicle.status === "In Shop" ? "destructive" : "secondary"
+                }
+                className="px-3 py-1 font-bold"
+              >
+                {selectedVehicle.status}
+              </Badge>
             </div>
+
+            {/* Quick stats grid */}
             <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: "Total Dispatches", value: detailsStats.tripsCount },
-                { label: "Shop Visits", value: detailsStats.serviceCount },
-                { label: "Fuel Logged (L)", value: formatNumber(detailsStats.totalFuel) },
-              ].map((s) => (
-                <div key={s.label} className="p-3 rounded-xl border border-border/40 bg-muted/20 text-center">
-                  <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">{s.label}</span>
-                  <span className="block text-xl font-black">{s.value}</span>
+              <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Total Dispatches</span>
+                <span className="block text-lg font-black text-white">{detailsStats.tripsCount}</span>
+              </div>
+              <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Shop Visits</span>
+                <span className="block text-lg font-black text-white">{detailsStats.serviceCount}</span>
+              </div>
+              <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
+                <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Fuel Logged</span>
+                <span className="block text-lg font-black text-white">{formatNumber(detailsStats.totalFuel)} L</span>
+              </div>
+            </div>
+
+            {/* Specs detail layout */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <span className="block text-xs font-bold uppercase text-white tracking-wider border-b border-border/40 pb-1">Spec Details</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Model Config:</span>
+                    <span className="font-semibold text-white">{selectedVehicle.model}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Max Cargo weight:</span>
+                    <span className="font-semibold text-white">{formatNumber(selectedVehicle.maxCapacity)} kg</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Odometer:</span>
+                    <span className="font-semibold text-white">{formatNumber(selectedVehicle.odometer)} km</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div className="grid md:grid-cols-2 gap-5">
-              <div className="space-y-3">
-                <span className="block text-xs font-bold uppercase tracking-wider border-b border-border/40 pb-2">Specifications</span>
-                {[
-                  ["Model Config", selectedVehicle.model],
-                  ["Max Cargo", `${formatNumber(selectedVehicle.maxCapacity)} kg`],
-                  ["Odometer", `${formatNumber(selectedVehicle.odometer)} km`],
-                ].map(([label, val]) => (
-                  <div key={label} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-semibold">{val}</span>
-                  </div>
-                ))}
               </div>
+
               <div className="space-y-3">
-                <span className="block text-xs font-bold uppercase tracking-wider border-b border-border/40 pb-2">Financial</span>
-                {[
-                  ["Acquisition", formatCurrency(selectedVehicle.acquisitionCost)],
-                  ["Maintenance Total", formatCurrency(maintenanceLogs.filter(m => m.vehicleId === selectedVehicle.id).reduce((s, m) => s + m.cost, 0))],
-                  ["Fuel Cost Total", formatCurrency(fuelLogs.filter(f => f.vehicleId === selectedVehicle.id).reduce((s, f) => s + f.cost, 0))],
-                ].map(([label, val]) => (
-                  <div key={label} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-semibold">{val}</span>
+                <span className="block text-xs font-bold uppercase text-white tracking-wider border-b border-border/40 pb-1">Financial & ROI</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Acquisition Cost:</span>
+                    <span className="font-semibold text-white">{formatCurrency(selectedVehicle.acquisitionCost)}</span>
                   </div>
-                ))}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Est. Maintenance:</span>
+                    <span className="font-semibold text-white">
+                      {formatCurrency(maintenanceLogs.filter(m => m.vehicleId === selectedVehicle.id).reduce((sum, m) => sum + m.cost, 0))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Est. Fuel Cost:</span>
+                    <span className="font-semibold text-white">
+                      {formatCurrency(fuelLogs.filter(f => f.vehicleId === selectedVehicle.id).reduce((sum, f) => sum + f.cost, 0))}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex justify-end pt-2 border-t border-border/40">
-              <Button onClick={() => setDetailsOpen(false)}>Done</Button>
+
+            <div className="flex justify-end pt-4 border-t border-border/50">
+              <Button variant="primary" onClick={() => setDetailsOpen(false)}>
+                Done
+              </Button>
             </div>
+
           </div>
         )}
       </Dialog>
 
-      <ConfirmDialog isOpen={deleteOpen} onClose={() => setDeleteOpen(false)}
+      {/* CONFIRM DELETE DIALOG */}
+      <ConfirmDialog
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
         title="Retract Fleet Vehicle"
-        description={`Delete vehicle ${selectedVehicle?.registrationNumber}? This permanently removes its records.`}
-        confirmText="Delete Vehicle" confirmVariant="destructive" onConfirm={handleDeleteConfirm} />
+        description={`Are you sure you want to delete vehicle ${selectedVehicle?.registrationNumber}? This will permanently remove its specification details and history logs.`}
+        confirmText="Retract Vehicle"
+        confirmVariant="destructive"
+        onConfirm={handleDeleteConfirm}
+      />
     </Shell>
   );
 }

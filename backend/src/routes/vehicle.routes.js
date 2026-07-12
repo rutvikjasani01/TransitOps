@@ -1,0 +1,16 @@
+import { Router } from "express";
+import * as controller from "../controllers/vehicle.controller.js";
+import { ROLES } from "../config/roles.js";
+import { authenticate } from "../middleware/authenticate.js";
+import { authorize } from "../middleware/authorize.js";
+import { validateRequest } from "../middleware/validateRequest.js";
+import { createVehicleValidator, listVehiclesValidator, updateStatusValidator, updateVehicleValidator, vehicleIdValidator } from "../validators/vehicle.validator.js";
+const router = Router();
+router.use(authenticate);
+router.get("/", listVehiclesValidator, validateRequest, controller.list);
+router.get("/:vehicleId", vehicleIdValidator, validateRequest, controller.getById);
+router.post("/", authorize(ROLES.FLEET_MANAGER), createVehicleValidator, validateRequest, controller.create);
+router.patch("/:vehicleId", authorize(ROLES.FLEET_MANAGER), vehicleIdValidator, updateVehicleValidator, validateRequest, controller.update);
+router.patch("/:vehicleId/status", authorize(ROLES.FLEET_MANAGER), vehicleIdValidator, updateStatusValidator, validateRequest, controller.updateStatus);
+router.delete("/:vehicleId", authorize(ROLES.FLEET_MANAGER), vehicleIdValidator, validateRequest, controller.remove);
+export default router;

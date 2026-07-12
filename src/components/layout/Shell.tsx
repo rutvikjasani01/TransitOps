@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
 import { 
   Menu, Bell, Sun, Moon, LogOut, Settings, 
-  ChevronLeft, ChevronRight, Check, Trash2,
-  Search, X, Zap
+  ChevronLeft, ChevronRight, User, ShieldAlert,
+  Search, Check, Trash2, Shield
 } from "lucide-react";
 import { useTransitState } from "@/contexts/TransitStateContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -16,20 +16,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormElements";
 import { useToast } from "@/contexts/ToastContext";
-import { cn } from "@/lib/utils";
 
+// Dynamically render Lucide Icon by name
 function DynamicIcon({ name, className }: { name: string; className?: string }) {
   const IconComponent = (Icons as any)[name];
   if (!IconComponent) return <Icons.HelpCircle className={className} />;
   return <IconComponent className={className} />;
 }
-
-const notifColors = {
-  warning: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-  info: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-  success: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-  error: "text-rose-400 bg-rose-400/10 border-rose-400/20",
-};
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -51,18 +44,67 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Initializing Fleet...");
+
+  useEffect(() => {
+    const playTrigger = sessionStorage.getItem("play_navix_splash");
+    if (playTrigger === "true") {
+      setShowSplash(true);
+      sessionStorage.removeItem("play_navix_splash");
+
+      const messages = [
+        "Initializing Fleet...",
+        "Connecting Vehicles...",
+        "Loading Drivers...",
+        "Checking Fleet Status...",
+        "Optimizing Routes...",
+        "Fetching Analytics...",
+        "Preparing Dashboard...",
+        "Dashboard Ready..."
+      ];
+      let msgIdx = 0;
+      const interval = setInterval(() => {
+        msgIdx++;
+        if (msgIdx < messages.length) {
+          setLoadingMessage(messages[msgIdx]);
+        }
+      }, 300); // 8 messages * 300ms = 2.4s total duration!
+
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 2500);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timer);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
-    if (!currentUser) router.push("/login");
+    // Redirect if not logged in
+    if (!currentUser) {
+      router.push("/login");
+    }
   }, [currentUser, router]);
 
+  // Handle route authorization
   useEffect(() => {
     if (!mounted || !currentUser) return;
+
+    // Get current navigation for the active role
     const activeRoutes = ROLE_NAVIGATION[currentRole].map(nav => nav.path);
+    
+    // Safety Officer doesn't have dashboard, they have /drivers
+    // If they land on root or dashboard, redirect them
     if (pathname === "/" || pathname === "/dashboard") {
-      if (currentRole === "Safety Officer") router.push("/drivers");
-      else router.push("/dashboard");
+      if (currentRole === "Safety Officer") {
+        router.push("/drivers");
+      } else {
+        router.push("/dashboard");
+      }
     }
   }, [pathname, currentRole, mounted, currentUser, router]);
 
@@ -70,17 +112,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center space-y-4">
-          <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Icons.Truck className="h-5 w-5 text-primary opacity-60" />
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground font-medium">Verifying access credentials...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Verifying access credentials...</p>
         </div>
       </div>
     );
   }
+
+
 
   const navItems = ROLE_NAVIGATION[currentRole] || [];
   const unreadNotifsCount = notifications.filter(n => !n.read).length;
@@ -91,6 +130,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
+  // Extract breadcrumbs from pathname
   const getBreadcrumbs = () => {
     const segments = pathname.split("/").filter(s => s);
     if (segments.length === 0) return [{ name: "TransitOps", path: "/" }];
@@ -103,181 +143,133 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   const breadcrumbs = getBreadcrumbs();
 
-  const roleColors: Record<string, string> = {
-    "Fleet Manager": "from-blue-500 to-indigo-600",
-    "Dispatcher": "from-orange-400 to-amber-500",
-    "Safety Officer": "from-emerald-500 to-teal-500",
-    "Financial Analyst": "from-purple-500 to-violet-600",
-  };
-
-  const roleGradient = roleColors[currentRole] || "from-blue-500 to-indigo-600";
-  const initials = currentUser.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2);
-
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* ── Sidebar Desktop ─────────────────────────────────── */}
+    <div className="min-h-screen flex bg-background/95">
+      {/* Sidebar - Desktop */}
       <aside
-        className={cn(
-          "hidden md:flex flex-col border-r border-border/50 transition-all duration-300 ease-in-out relative z-20 shrink-0",
-          "bg-card/80 dark:bg-card/60 backdrop-blur-xl",
-          sidebarCollapsed ? "w-[72px]" : "w-[260px]"
-        )}
+        className={`hidden md:flex flex-col border-r border-border/40 bg-card/45 backdrop-blur-xl transition-all duration-300 relative z-20 ${
+          sidebarCollapsed ? "w-20" : "w-64"
+        }`}
       >
-        {/* Logo */}
-        <div className={cn(
-          "h-16 flex items-center border-b border-border/40 shrink-0",
-          sidebarCollapsed ? "justify-center px-3" : "px-5 space-x-3"
-        )}>
-          <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-indigo-400/20 border border-primary/25 shrink-0">
-            <Icons.Truck className="h-5 w-5 text-primary" />
-          </div>
-          <AnimatePresence>
+        {/* Sidebar Header */}
+        <div className="h-16 flex items-center justify-between px-6 border-b border-border/40">
+          <motion.div 
+            layoutId="navix-logo-container" 
+            className="flex items-center space-x-2.5 overflow-hidden"
+          >
+            <motion.div 
+              layoutId="navix-logo-icon"
+              className="p-2 bg-primary/10 rounded-xl text-primary shrink-0 border border-primary/20"
+            >
+              <Icons.Navigation className="h-4.5 w-4.5 fill-primary rotate-[45deg]" />
+            </motion.div>
             {!sidebarCollapsed && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
+              <motion.span 
+                layoutId="navix-logo-text"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-black text-lg tracking-tight text-foreground"
               >
-                <span className="font-black text-lg tracking-tight gradient-text whitespace-nowrap">
-                  TransitOps
-                </span>
-              </motion.div>
+                NAVIX
+              </motion.span>
             )}
-          </AnimatePresence>
+          </motion.div>
         </div>
 
-        {/* Nav */}
-        <nav className={cn("flex-1 py-5 space-y-1 overflow-y-auto", sidebarCollapsed ? "px-2" : "px-3")}>
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
               <button
                 key={item.path}
                 onClick={() => router.push(item.path)}
-                title={sidebarCollapsed ? item.name : undefined}
-                className={cn(
-                  "w-full flex items-center rounded-xl text-sm font-semibold transition-all duration-200 group cursor-pointer relative",
-                  sidebarCollapsed ? "p-2.5 justify-center" : "px-3 py-2.5 space-x-3",
+                className={`w-full flex items-center p-3 rounded-lg text-sm font-medium transition-all group cursor-pointer ${
                   isActive
-                    ? "sidebar-item-active text-white"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50 sidebar-item-hover"
-                )}
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                    : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+                }`}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-active"
-                    className="absolute inset-0 rounded-xl sidebar-item-active"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <DynamicIcon
-                  name={item.icon}
-                  className={cn(
-                    "h-[18px] w-[18px] shrink-0 relative z-10 transition-transform group-hover:scale-110",
-                    isActive ? "text-white" : ""
-                  )}
-                />
-                {!sidebarCollapsed && (
-                  <span className="relative z-10">{item.name}</span>
-                )}
-                {isActive && !sidebarCollapsed && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="ml-auto relative z-10 h-1.5 w-1.5 rounded-full bg-white/80"
-                  />
-                )}
+                <DynamicIcon name={item.icon} className={`h-5 w-5 ${sidebarCollapsed ? "mx-auto" : "mr-3"}`} />
+                {!sidebarCollapsed && <span>{item.name}</span>}
               </button>
             );
           })}
         </nav>
 
-        {/* Role pill & collapse toggle */}
-        <div className={cn("p-3 border-t border-border/40 space-y-2")}>
-          {!sidebarCollapsed && (
-            <div className={cn(
-              "flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold",
-              "bg-gradient-to-r", roleGradient, "bg-opacity-10",
-              "border border-white/10"
-            )}>
-              <div className={cn("h-2 w-2 rounded-full bg-gradient-to-r shrink-0", roleGradient)} />
-              <span className="text-white/80 truncate">{currentRole}</span>
-            </div>
-          )}
+        {/* Sidebar Toggle at Bottom */}
+        <div className="p-4 border-t border-border/40">
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-xl text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:bg-accent/40 hover:text-foreground cursor-pointer"
           >
-            {sidebarCollapsed
-              ? <ChevronRight className="h-4 w-4" />
-              : <ChevronLeft className="h-4 w-4" />}
+            {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </button>
         </div>
       </aside>
 
-      {/* ── Mobile Drawer ────────────────────────────────────── */}
+      {/* Mobile Sidebar Overlay Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
+              animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
               className="fixed inset-0 z-30 bg-black md:hidden"
             />
+            {/* Drawer */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.22 }}
-              className="fixed inset-y-0 left-0 z-40 w-72 bg-card border-r border-border backdrop-blur-xl flex flex-col md:hidden"
+              transition={{ type: "tween", duration: 0.25 }}
+              className="fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border p-5 flex flex-col md:hidden"
             >
-              <div className="h-16 flex items-center justify-between px-5 border-b border-border/50">
+              <div className="flex items-center justify-between pb-6 border-b border-border/50">
                 <div className="flex items-center space-x-2.5">
-                  <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
-                    <Icons.Truck className="h-5 w-5 text-primary" />
+                  <div className="p-1.5 bg-primary/10 rounded-lg text-primary border border-primary/20">
+                    <Icons.Navigation className="h-4 w-4 fill-primary rotate-[45deg]" />
                   </div>
-                  <span className="font-black text-lg gradient-text">TransitOps</span>
+                  <span className="font-black text-lg text-foreground">NAVIX</span>
                 </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg hover:bg-accent cursor-pointer">
-                  <X className="h-5 w-5" />
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded hover:bg-accent cursor-pointer">
+                  <ChevronLeft className="h-6 w-6" />
                 </button>
               </div>
 
-              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+              <nav className="flex-1 py-6 space-y-1">
                 {navItems.map((item) => {
                   const isActive = pathname === item.path;
                   return (
                     <button
                       key={item.path}
-                      onClick={() => { router.push(item.path); setMobileMenuOpen(false); }}
-                      className={cn(
-                        "w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer",
+                      onClick={() => {
+                        router.push(item.path);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center p-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                         isActive
-                          ? "sidebar-item-active text-white"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                      )}
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      }`}
                     >
-                      <DynamicIcon name={item.icon} className="h-5 w-5 shrink-0" />
+                      <DynamicIcon name={item.icon} className="h-5 w-5 mr-3" />
                       <span>{item.name}</span>
                     </button>
                   );
                 })}
               </nav>
 
-              <div className="p-4 border-t border-border/50 space-y-2">
-                <div className="px-3 py-2 rounded-xl bg-muted/50 text-xs font-semibold text-muted-foreground">
-                  {currentUser.name} · {currentRole}
-                </div>
+              <div className="pt-4 border-t border-border/50">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
+                  className="w-full flex items-center p-3 rounded-lg text-sm text-destructive hover:bg-destructive/10 cursor-pointer"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
+                  <LogOut className="h-5 w-5 mr-3" />
+                  <span>Log Out</span>
                 </button>
               </div>
             </motion.aside>
@@ -285,37 +277,35 @@ export function Shell({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* ── Main Content ─────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Main Content Layout */}
+      <div className="flex-1 flex flex-col min-w-0">
         
-        {/* Header */}
-        <header className="h-16 flex items-center justify-between px-4 md:px-6 border-b border-border/40 bg-card/60 backdrop-blur-xl relative z-10 shrink-0">
+        {/* Top Header */}
+        <header className="h-16 flex items-center justify-between px-4 md:px-6 border-b border-border/40 bg-card/25 backdrop-blur-xl relative z-10">
+          
+          {/* Left section: Hamburger & Breadcrumbs */}
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 rounded-xl text-muted-foreground hover:bg-accent/50 hover:text-foreground md:hidden cursor-pointer transition-colors"
+              className="p-2 rounded-lg text-muted-foreground hover:bg-accent/40 hover:text-foreground md:hidden cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
 
-            {/* Breadcrumb */}
+            {/* Breadcrumb path */}
             <nav className="hidden sm:flex items-center space-x-1.5 text-xs text-muted-foreground font-medium">
-              <button
-                className="hover:text-foreground transition-colors font-semibold"
-                onClick={() => router.push("/")}
-              >
+              <span className="hover:text-foreground transition-colors cursor-pointer" onClick={() => router.push("/")}>
                 TransitOps
-              </button>
+              </span>
               {breadcrumbs.map((bc, idx) => (
                 <React.Fragment key={bc.path}>
-                  <span className="text-border">/</span>
+                  <span>/</span>
                   <span
-                    className={cn(
-                      "transition-colors",
+                    className={
                       idx === breadcrumbs.length - 1
-                        ? "text-foreground font-bold"
-                        : "hover:text-foreground cursor-pointer"
-                    )}
+                        ? "text-foreground font-semibold"
+                        : "hover:text-foreground transition-colors cursor-pointer"
+                    }
                     onClick={() => idx < breadcrumbs.length - 1 && router.push(bc.path)}
                   >
                     {bc.name}
@@ -325,48 +315,42 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </nav>
           </div>
 
-          <div className="flex items-center space-x-1.5 sm:space-x-2">
-            {/* Global Search */}
-            <div className="relative hidden lg:block w-48 xl:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          {/* Right section: Actions (Search, Theme, Alerts, User Profile) */}
+          <div className="flex items-center space-x-3">
+            {/* Mock Global Search */}
+            <div className="relative hidden lg:block w-48 xl:w-64">
+              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Quick lookup..."
-                className="pl-9 h-9 text-xs bg-muted/40 border-border/50 rounded-xl"
+                placeholder="Global tracking lookup..."
+                className="pl-8 h-9 text-xs bg-muted/40"
                 id="global-search"
                 onChange={(e) => {
                   if (e.target.value.trim().length > 3) {
-                    toast(`Searching: ${e.target.value}`, "info");
+                    toast(`Simulated Search for: ${e.target.value}`, "info");
                   }
                 }}
               />
             </div>
 
             {/* Theme Toggle */}
-            <button
-              className="h-9 w-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors cursor-pointer"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-lg hover:bg-accent/40 cursor-pointer"
               onClick={toggleTheme}
               title="Toggle theme"
             >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={theme}
-                  initial={{ rotate: -90, opacity: 0, scale: 0.8 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 90, opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </motion.div>
-              </AnimatePresence>
-            </button>
+              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
 
-            {/* Notification Bell */}
+            {/* Notification Bell Dropdown */}
             <div className="relative">
-              <button
-                className={cn(
-                  "h-9 w-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors cursor-pointer relative",
-                  notifDropdownOpen && "bg-accent/50 text-foreground"
-                )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-9 w-9 rounded-lg hover:bg-accent/40 relative cursor-pointer ${
+                  notifDropdownOpen ? "bg-accent/40" : ""
+                }`}
                 onClick={() => {
                   setNotifDropdownOpen(!notifDropdownOpen);
                   setProfileDropdownOpen(false);
@@ -375,87 +359,71 @@ export function Shell({ children }: { children: React.ReactNode }) {
               >
                 <Bell className="h-4 w-4" />
                 {unreadNotifsCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                  <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                   </span>
                 )}
-              </button>
+              </Button>
 
               <AnimatePresence>
                 {notifDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setNotifDropdownOpen(false)} />
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                      className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-xl glass-panel z-50"
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-80 rounded-xl border border-border bg-card p-3 shadow-lg glass-panel z-50 overflow-hidden"
                     >
-                      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
-                        <div className="flex items-center space-x-2">
-                          <Bell className="h-4 w-4 text-primary" />
-                          <span className="font-bold text-sm">Alerts</span>
-                          {unreadNotifsCount > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 text-[10px] font-bold border border-rose-500/20">
-                              {unreadNotifsCount} new
-                            </span>
-                          )}
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/50">
+                        <span className="font-bold text-sm">System Alerts</span>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={clearAllNotifications}
+                            className="text-xs text-muted-foreground hover:text-destructive flex items-center space-x-1 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            <span>Clear</span>
+                          </button>
                         </div>
-                        <button
-                          onClick={clearAllNotifications}
-                          className="text-xs text-muted-foreground hover:text-rose-400 flex items-center space-x-1 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          <span>Clear all</span>
-                        </button>
                       </div>
-
-                      <div className="max-h-[320px] overflow-y-auto p-2 space-y-1">
+                      <div className="max-h-[300px] overflow-y-auto space-y-1.5 pr-1">
                         {notifications.length > 0 ? (
                           notifications.map((n) => (
                             <div
                               key={n.id}
-                              className={cn(
-                                "p-3 rounded-xl border text-xs transition-all",
+                              className={`p-2.5 rounded-lg border text-xs transition-colors flex items-start ${
                                 n.read
-                                  ? "bg-muted/20 border-border/30"
-                                  : "bg-primary/5 border-primary/15"
-                              )}
+                                  ? "bg-muted/10 border-border/30"
+                                  : "bg-primary/5 border-primary/20"
+                              }`}
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5 mb-1">
-                                    <span className={cn(
-                                      "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
-                                      notifColors[n.type]
-                                    )}>
-                                      {n.type}
-                                    </span>
-                                    <span className="font-bold text-foreground truncate">{n.title}</span>
-                                  </div>
-                                  <p className="text-muted-foreground leading-normal">{n.message}</p>
-                                  <span className="text-[10px] text-muted-foreground/50 mt-1 block">{n.timestamp}</span>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between font-bold">
+                                  <span className={n.type === "warning" ? "text-warning" : "text-foreground"}>
+                                    {n.title}
+                                  </span>
+                                  {!n.read && (
+                                    <button
+                                      onClick={() => markNotificationAsRead(n.id)}
+                                      className="text-[10px] text-primary hover:underline flex items-center space-x-0.5 cursor-pointer"
+                                    >
+                                      <Check className="h-3 w-3" />
+                                      <span>Mark Read</span>
+                                    </button>
+                                  )}
                                 </div>
-                                {!n.read && (
-                                  <button
-                                    onClick={() => markNotificationAsRead(n.id)}
-                                    className="shrink-0 h-6 w-6 rounded-lg flex items-center justify-center text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-                                  >
-                                    <Check className="h-3 w-3" />
-                                  </button>
-                                )}
+                                <p className="text-muted-foreground mt-1 leading-normal">{n.message}</p>
+                                <span className="text-[10px] text-muted-foreground/60 block mt-1">{n.timestamp}</span>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="py-10 text-center flex flex-col items-center space-y-2">
-                            <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                              <Icons.CheckCircle2 className="h-7 w-7 text-emerald-500" />
-                            </div>
-                            <p className="font-bold text-sm text-foreground/80">All clear</p>
-                            <p className="text-[11px] text-muted-foreground">No pending operational alerts.</p>
+                          <div className="py-8 text-center text-muted-foreground flex flex-col items-center space-y-1">
+                            <Icons.CheckCircle2 className="h-8 w-8 text-success/50" />
+                            <p className="font-semibold text-xs text-foreground/80">All clear</p>
+                            <p className="text-[10px]">No pending operational alerts.</p>
                           </div>
                         )}
                       </div>
@@ -467,101 +435,148 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
             {/* Profile Dropdown */}
             <div className="relative">
-              <button
-                className={cn(
-                  "flex items-center space-x-2 h-9 pl-2 pr-3 rounded-xl hover:bg-accent/50 transition-colors cursor-pointer",
-                  profileDropdownOpen && "bg-accent/50"
-                )}
+              <Button
+                variant="ghost"
+                className="flex items-center space-x-2 h-9 py-1 px-2.5 rounded-lg hover:bg-accent/40 cursor-pointer"
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
                   setNotifDropdownOpen(false);
                 }}
               >
-                <div className={cn(
-                  "h-6 w-6 rounded-lg flex items-center justify-center text-[10px] font-black text-white shrink-0",
-                  "bg-gradient-to-br", roleGradient
-                )}>
-                  {initials}
+                <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0 text-[10px] font-bold text-primary">
+                  {currentUser.name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div className="text-left hidden sm:block">
-                  <span className="block text-xs font-bold text-foreground leading-none">{currentUser.name.split(" ")[0]}</span>
+                  <span className="block text-xs font-bold text-foreground leading-none">{currentUser.name}</span>
                   <span className="text-[9px] text-muted-foreground leading-none">{currentRole}</span>
                 </div>
-              </button>
+              </Button>
 
               <AnimatePresence>
                 {profileDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setProfileDropdownOpen(false)} />
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                      className="absolute right-0 mt-2 w-60 rounded-2xl border border-border bg-card shadow-xl glass-panel z-50 overflow-hidden"
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card p-2 shadow-lg glass-panel z-50"
                     >
-                      {/* Profile header */}
-                      <div className={cn("px-4 py-3 bg-gradient-to-br", roleGradient, "bg-opacity-10 border-b border-border/50")}>
-                        <div className="flex items-center space-x-3">
-                          <div className={cn(
-                            "h-9 w-9 rounded-xl flex items-center justify-center text-sm font-black text-white shrink-0",
-                            "bg-gradient-to-br", roleGradient
-                          )}>
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <span className="block text-sm font-bold text-foreground truncate">{currentUser.name}</span>
-                            <span className="block text-[10px] text-muted-foreground truncate">{currentUser.email}</span>
-                          </div>
-                        </div>
-                        <div className="mt-2">
-                          <Badge variant="primary" className="text-[9px] py-0 px-2 font-bold">
+                      <div className="px-3 py-2 border-b border-border/50 mb-1">
+                        <span className="block text-xs font-bold text-foreground">{currentUser.name}</span>
+                        <span className="block text-[10px] text-muted-foreground truncate">{currentUser.email}</span>
+                        <div className="mt-1.5">
+                          <Badge variant="primary" className="text-[9px] py-0 px-1.5">
                             {currentRole}
                           </Badge>
                         </div>
                       </div>
 
-                      <div className="p-2">
-                        <button
-                          onClick={() => { setProfileDropdownOpen(false); router.push("/settings"); }}
-                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer transition-colors"
-                        >
-                          <Settings className="h-4 w-4" />
-                          <span>Settings & Preferences</span>
-                        </button>
-                        <div className="my-1 h-px bg-border/50" />
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <span>Sign Out</span>
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => {
+                          setProfileDropdownOpen(false);
+                          router.push("/settings");
+                        }}
+                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </button>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </button>
                     </motion.div>
                   </>
                 )}
               </AnimatePresence>
             </div>
+
           </div>
+
         </header>
 
-        {/* Content */}
+        {/* Dynamic Route Content */}
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          {children}
         </main>
       </div>
+
+      {/* Splash Screen Overlay */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background text-foreground"
+          >
+            {/* Background gradients */}
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-primary/5 blur-[120px]" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-accent/5 blur-[120px]" />
+
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex flex-col items-center space-y-6 z-10"
+            >
+              {/* Logo Squircle with Compass Needle */}
+              <motion.div 
+                layoutId="navix-logo-container" 
+                className="flex items-center space-x-3"
+              >
+                <motion.div 
+                  layoutId="navix-logo-icon"
+                  className="p-3 bg-primary/15 rounded-2xl border border-primary/30 text-primary shrink-0 shadow-lg shadow-primary/10"
+                >
+                  <Icons.Navigation className="h-8 w-8 fill-primary text-primary rotate-[45deg]" />
+                </motion.div>
+                <motion.span 
+                  layoutId="navix-logo-text"
+                  className="text-4xl font-black tracking-tight text-slate-900 dark:text-white"
+                >
+                  NAVIX
+                </motion.span>
+              </motion.div>
+
+              {/* Loader bar and truck */}
+              <div className="relative w-64 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-visible mt-4">
+                {/* Filled road bar */}
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2.0, ease: "easeInOut" }}
+                  className="absolute left-0 top-0 h-full bg-primary rounded-full shadow-lg shadow-primary/50"
+                />
+                {/* Truck moving along the line */}
+                <motion.div
+                  initial={{ left: -10 }}
+                  animate={{ left: "95%" }}
+                  transition={{ duration: 2.0, ease: "easeInOut" }}
+                  className="absolute top-[-24px] z-10 text-primary"
+                >
+                  <Icons.Truck className="h-6 w-6" />
+                </motion.div>
+              </div>
+
+              {/* Status Message */}
+              <motion.p 
+                key={loadingMessage}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-xs tracking-wider uppercase font-semibold text-slate-500 dark:text-slate-400 min-h-[20px]"
+              >
+                {loadingMessage}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

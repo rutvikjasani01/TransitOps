@@ -1,0 +1,14 @@
+import { body, param, query } from "express-validator";
+import { VEHICLE_STATUSES, VEHICLE_TYPES } from "../config/vehicle.js";
+const registration = body("registrationNumber").trim().notEmpty().withMessage("Registration number is required.").isLength({ max: 64 }).withMessage("Registration number must be at most 64 characters.");
+const name = body("name").trim().notEmpty().withMessage("Vehicle name is required.").isLength({ max: 160 }).withMessage("Vehicle name must be at most 160 characters.");
+const model = body("model").trim().notEmpty().withMessage("Model is required.").isLength({ max: 120 }).withMessage("Model must be at most 120 characters.");
+const type = body("type").isIn(VEHICLE_TYPES).withMessage(`Type must be one of: ${VEHICLE_TYPES.join(", ")}.`);
+const capacity = body("maxCapacity").isFloat({ gt: 0 }).withMessage("Maximum capacity must be greater than zero.").toFloat();
+const odometer = body("odometer").isFloat({ min: 0 }).withMessage("Odometer cannot be negative.").toFloat();
+const acquisitionCost = body("acquisitionCost").isFloat({ gt: 0 }).withMessage("Acquisition cost must be greater than zero.").toFloat();
+export const vehicleIdValidator = [param("vehicleId").trim().notEmpty().withMessage("Vehicle id is required.")];
+export const createVehicleValidator = [registration, name, model, type, capacity, odometer, acquisitionCost, body("status").optional().isIn(["Available", "In Shop", "Retired"]).withMessage("New vehicles cannot be created with On Trip status.")];
+export const updateVehicleValidator = [registration.optional(), name.optional(), model.optional(), type.optional(), capacity.optional(), odometer.optional(), acquisitionCost.optional(), body("status").not().exists().withMessage("Use PATCH /vehicles/:vehicleId/status to change vehicle status."), body().custom((value) => Object.keys(value).some((key) => ["registrationNumber", "name", "model", "type", "maxCapacity", "odometer", "acquisitionCost"].includes(key))).withMessage("At least one editable vehicle field is required.")];
+export const updateStatusValidator = [body("status").isIn(VEHICLE_STATUSES).withMessage(`Status must be one of: ${VEHICLE_STATUSES.join(", ")}.`)];
+export const listVehiclesValidator = [query("status").optional().isIn(VEHICLE_STATUSES), query("type").optional().isIn(VEHICLE_TYPES), query("search").optional().trim().isLength({ max: 160 })];
