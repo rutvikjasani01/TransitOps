@@ -176,10 +176,10 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Table Layout */}
-      <div className="overflow-x-auto rounded-xl border border-border bg-card/30 backdrop-blur-md">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-card/40 backdrop-blur-md shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/40 text-xs font-semibold text-muted-foreground uppercase">
+            <tr className="border-b border-border/60 bg-muted/30 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {columns.map((col, idx) => (
                 <th key={idx} className="p-4 align-middle">
                   {col.sortable && col.accessorKey ? (
@@ -212,7 +212,7 @@ export function DataTable<T extends Record<string, any>>({
                   key={row.id || rowIdx}
                   onClick={() => onRowClick && onRowClick(row)}
                   className={cn(
-                    "hover:bg-muted/30 transition-colors",
+                    "hover:bg-accent/30 transition-colors duration-150",
                     onRowClick && "cursor-pointer"
                   )}
                 >

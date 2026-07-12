@@ -7,7 +7,9 @@ import {
   Filter, Calendar, RefreshCw, PlusCircle, LayoutDashboard
 } from "lucide-react";
 import { Shell } from "@/components/layout/Shell";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatCard } from "@/components/ui/StatCard";
 import { Button } from "@/components/ui/Button";
 import { Select, Input } from "@/components/ui/FormElements";
 import { Badge } from "@/components/ui/Badge";
@@ -226,8 +228,8 @@ export default function DashboardPage() {
               <RefreshCw className="h-3.5 w-3.5" />
               Sync State
             </Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Dashboard Filters Grid */}
         <Card className="glass-panel border-white/5">
@@ -356,7 +358,7 @@ export default function DashboardPage() {
         <Card className="glass-panel bg-primary/5 border-primary/10">
           <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center space-x-1.5 text-sm font-bold text-white">
+              <div className="flex items-center space-x-1.5 text-sm font-bold text-foreground">
                 <Zap className="h-4 w-4 text-warning" />
                 <span>Quick Actions Controls</span>
               </div>
@@ -403,7 +405,7 @@ export default function DashboardPage() {
           <Card className="lg:col-span-8">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-white uppercase tracking-wider">Fleet Utilization Trend</span>
+                <span className="section-title">Fleet Utilization Trend</span>
                 <Badge variant="primary" className="text-[10px]">Real-Time</Badge>
               </div>
             </CardHeader>
@@ -415,7 +417,7 @@ export default function DashboardPage() {
           {/* Trip Status (Pie) */}
           <Card className="lg:col-span-4">
             <CardHeader>
-              <span className="text-sm font-bold text-white uppercase tracking-wider">Trip Status Ratios</span>
+              <span className="section-title">Trip Status Ratios</span>
             </CardHeader>
             <CardContent>
               {tripStatusChartData.length > 0 ? (
@@ -431,7 +433,7 @@ export default function DashboardPage() {
           {/* Expense Breakdown (Pie/Donut) */}
           <Card className="lg:col-span-4">
             <CardHeader>
-              <span className="text-sm font-bold text-white uppercase tracking-wider">Expense Factors</span>
+              <span className="section-title">Expense Factors</span>
             </CardHeader>
             <CardContent>
               {expenseChartData.length > 0 ? (
@@ -447,7 +449,7 @@ export default function DashboardPage() {
           {/* Monthly Trend (Line) */}
           <Card className="lg:col-span-4">
             <CardHeader>
-              <span className="text-sm font-bold text-white uppercase tracking-wider">Operating vs Maint Costs</span>
+              <span className="section-title">Operating vs Maint Costs</span>
             </CardHeader>
             <CardContent>
               <MonthlyCostTrendChart data={monthlyCostTrendData} />
@@ -457,7 +459,7 @@ export default function DashboardPage() {
           {/* Fuel Consumption (Bar) */}
           <Card className="lg:col-span-4">
             <CardHeader>
-              <span className="text-sm font-bold text-white uppercase tracking-wider">Fuel usage per vehicle</span>
+              <span className="section-title">Fuel usage per vehicle</span>
             </CardHeader>
             <CardContent>
               {fuelConsumptionData.length > 0 ? (
@@ -478,7 +480,7 @@ export default function DashboardPage() {
           {/* Recent Trips Table */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/40">
-              <span className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-1.5">
+              <span className="section-title flex items-center space-x-1.5">
                 <Route className="h-4 w-4 text-primary" />
                 <span>Recent Trips Control</span>
               </span>
@@ -534,7 +536,7 @@ export default function DashboardPage() {
           {/* Recent Maintenance Table */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/40">
-              <span className="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-1.5">
+              <span className="section-title flex items-center space-x-1.5">
                 <Wrench className="h-4 w-4 text-warning" />
                 <span>Recent Shop Tickets</span>
               </span>

@@ -156,7 +156,7 @@ export default function MaintenancePage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs border-success/30 hover:bg-success hover:text-white"
+              className="h-8 text-xs border-success/30 hover:bg-success hover:text-success-foreground"
               onClick={() => handleOpenResolve(row)}
             >
               Close Ticket
@@ -178,7 +178,7 @@ export default function MaintenancePage() {
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <Wrench className="h-8 w-8 text-primary shrink-0" />
               <span>Fleet Maintenance</span>
             </h1>
@@ -205,7 +205,7 @@ export default function MaintenancePage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Active Shop Tickets</span>
-              <span className="block text-xl font-black text-white">{stats.activeTickets} Vehicles</span>
+              <span className="block text-xl font-black text-foreground">{stats.activeTickets} Vehicles</span>
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export default function MaintenancePage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Resolved Tickets</span>
-              <span className="block text-xl font-black text-white">{stats.resolvedTickets} Checked</span>
+              <span className="block text-xl font-black text-foreground">{stats.resolvedTickets} Checked</span>
             </div>
           </div>
 
@@ -225,7 +225,7 @@ export default function MaintenancePage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Accumulated Shop Costs</span>
-              <span className="block text-xl font-black text-white">{formatCurrency(stats.totalCost)}</span>
+              <span className="block text-xl font-black text-foreground">{formatCurrency(stats.totalCost)}</span>
             </div>
           </div>
 

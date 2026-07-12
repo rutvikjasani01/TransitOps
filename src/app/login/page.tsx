@@ -181,7 +181,7 @@ export default function LoginPage() {
               <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">Miles Dispatched</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Login Card Side (Right on Desktop) */}
         <div className="md:col-span-6 w-full max-w-md mx-auto">
@@ -567,7 +567,7 @@ export default function LoginPage() {
 
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
