@@ -92,7 +92,7 @@ export default function VehiclesPage() {
   };
 
   // Submit Handler
-  const handleSaveVehicle = (e: React.FormEvent) => {
+  const handleSaveVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -121,7 +121,7 @@ export default function VehiclesPage() {
 
     if (editingVehicle) {
       // Edit mode
-      const res = updateVehicle(editingVehicle.id, payload);
+      const res = await updateVehicle(editingVehicle.id, payload);
       if (res.success) {
         toast(`Vehicle ${regNum} updated successfully.`, "success");
         setFormOpen(false);
@@ -131,7 +131,7 @@ export default function VehiclesPage() {
       }
     } else {
       // Add mode
-      const res = addVehicle(payload);
+      const res = await addVehicle(payload);
       if (res.success) {
         toast(`New vehicle ${regNum} added.`, "success");
         setFormOpen(false);
@@ -142,9 +142,9 @@ export default function VehiclesPage() {
     }
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!selectedVehicle) return;
-    const res = deleteVehicle(selectedVehicle.id);
+    const res = await deleteVehicle(selectedVehicle.id);
     if (res.success) {
       toast(`Vehicle ${selectedVehicle.registrationNumber} deleted successfully.`, "success");
       setDeleteOpen(false);

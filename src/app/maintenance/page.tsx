@@ -36,9 +36,9 @@ export default function MaintenancePage() {
     setResolveConfirmOpen(true);
   };
 
-  const handleResolveConfirm = () => {
+  const handleResolveConfirm = async () => {
     if (!selectedTicket) return;
-    const res = closeMaintenance(selectedTicket.id);
+    const res = await closeMaintenance(selectedTicket.id);
     if (res.success) {
       toast("Maintenance ticket closed. Vehicle is now Available.", "success");
       setResolveConfirmOpen(false);

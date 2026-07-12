@@ -45,7 +45,7 @@ export default function ExpensesPage() {
     setAddModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -57,7 +57,7 @@ export default function ExpensesPage() {
       return;
     }
 
-    addExpense({
+    const res = await addExpense({
       category,
       amount,
       date,
@@ -65,8 +65,12 @@ export default function ExpensesPage() {
       vehicleId: vehicleId || undefined
     });
 
-    toast("Custom expense logged successfully.", "success");
-    setAddModalOpen(false);
+    if (res.success) {
+      toast("Custom expense logged successfully.", "success");
+      setAddModalOpen(false);
+    } else {
+      toast(res.error || "Failed to log expense.", "error");
+    }
   };
 
   // Compute category statistics
