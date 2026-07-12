@@ -160,7 +160,7 @@ export default function TripsPage() {
         <Button 
           variant="outline" 
           size="sm" 
-          className="h-8 text-xs hover:bg-primary hover:text-white"
+          className="h-8 text-xs hover:bg-primary hover:text-primary-foreground"
           onClick={() => handleOpenDetails(row)}
         >
           Monitor
@@ -225,7 +225,7 @@ export default function TripsPage() {
 
               <div className="pt-0.5 flex-1">
                 <div className="flex justify-between items-center">
-                  <span className={`font-bold ${isDone ? "text-white" : "text-muted-foreground"}`}>{st.label}</span>
+                  <span className={`font-bold ${isDone ? "text-foreground" : "text-muted-foreground"}`}>{st.label}</span>
                   <span className="text-[10px] text-muted-foreground/60">{st.time}</span>
                 </div>
                 <p className="text-muted-foreground mt-0.5">{st.desc}</p>
@@ -244,7 +244,7 @@ export default function TripsPage() {
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <Compass className="h-8 w-8 text-primary shrink-0" />
               <span>Dispatches Control</span>
             </h1>
@@ -302,7 +302,7 @@ export default function TripsPage() {
                   <Route className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2 text-sm font-extrabold text-white">
+                  <div className="flex items-center space-x-2 text-sm font-extrabold text-foreground">
                     <span>{selectedTrip.source.split(",")[0]}</span>
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{selectedTrip.destination.split(",")[0]}</span>
@@ -330,7 +330,7 @@ export default function TripsPage() {
             <div className="grid md:grid-cols-2 gap-4">
               {/* Vehicle */}
               <div className="p-4 rounded-xl border border-border/40 bg-card/25 text-xs space-y-2">
-                <span className="block font-bold text-white uppercase tracking-wider flex items-center gap-1.5 mb-1 text-[10px]">
+                <span className="block font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5 mb-1 text-[10px]">
                   <Truck className="h-3.5 w-3.5 text-primary" /> Assigned Vehicle
                 </span>
                 {(() => {
@@ -339,7 +339,7 @@ export default function TripsPage() {
                     <div className="space-y-1.5">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Model:</span>
-                        <span className="font-semibold text-white">{vehicle?.name || "Unknown"}</span>
+                        <span className="font-semibold text-foreground">{vehicle?.name || "Unknown"}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Registration:</span>
@@ -347,7 +347,7 @@ export default function TripsPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Max Capacity:</span>
-                        <span className="font-semibold text-white">{formatNumber(vehicle?.maxCapacity || 0)} kg</span>
+                        <span className="font-semibold text-foreground">{formatNumber(vehicle?.maxCapacity || 0)} kg</span>
                       </div>
                     </div>
                   );
@@ -356,7 +356,7 @@ export default function TripsPage() {
 
               {/* Driver */}
               <div className="p-4 rounded-xl border border-border/40 bg-card/25 text-xs space-y-2">
-                <span className="block font-bold text-white uppercase tracking-wider flex items-center gap-1.5 mb-1 text-[10px]">
+                <span className="block font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5 mb-1 text-[10px]">
                   <User className="h-3.5 w-3.5 text-primary" /> Assigned Operator
                 </span>
                 {(() => {
@@ -365,15 +365,15 @@ export default function TripsPage() {
                     <div className="space-y-1.5">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Name:</span>
-                        <span className="font-semibold text-white">{driver?.name || "Unknown"}</span>
+                        <span className="font-semibold text-foreground">{driver?.name || "Unknown"}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">License CDL:</span>
-                        <span className="font-mono text-white">{driver?.licenseNumber || "—"}</span>
+                        <span className="font-mono text-foreground">{driver?.licenseNumber || "—"}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Safety Score:</span>
-                        <span className="font-semibold text-white">{driver?.safetyScore}/100</span>
+                        <span className="font-semibold text-foreground">{driver?.safetyScore}/100</span>
                       </div>
                     </div>
                   );
@@ -383,7 +383,7 @@ export default function TripsPage() {
 
             {/* Vertical timeline status tracking */}
             <div className="space-y-3">
-              <span className="block text-xs font-bold uppercase tracking-wider text-white">Operational Timeline</span>
+              <span className="block text-xs font-bold uppercase tracking-wider text-foreground">Operational Timeline</span>
               <div className="p-4 rounded-xl border border-border/40 bg-card/25">
                 {renderTimeline(selectedTrip)}
               </div>

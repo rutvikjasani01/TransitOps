@@ -244,7 +244,7 @@ export default function VehiclesPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-blue-400 hover:text-white"
+            className="h-8 w-8 text-blue-400 hover:text-foreground"
             onClick={() => handleOpenDetails(row)}
             title="Details"
           >
@@ -253,7 +253,7 @@ export default function VehiclesPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-amber-400 hover:text-white"
+            className="h-8 w-8 text-amber-400 hover:text-foreground"
             onClick={() => handleOpenEdit(row)}
             title="Edit"
             disabled={row.status === "On Trip"}
@@ -263,7 +263,7 @@ export default function VehiclesPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-rose-500 hover:text-white"
+            className="h-8 w-8 text-rose-500 hover:text-foreground"
             onClick={() => handleOpenDelete(row)}
             title="Delete"
             disabled={row.status === "On Trip"}
@@ -296,7 +296,7 @@ export default function VehiclesPage() {
         {/* Title Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <Truck className="h-8 w-8 text-primary shrink-0" />
               <span>Fleet Inventory</span>
             </h1>
@@ -459,7 +459,7 @@ export default function VehiclesPage() {
                   <Truck className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white text-base leading-none mb-1">{selectedVehicle.name}</h4>
+                  <h4 className="font-bold text-foreground text-base leading-none mb-1">{selectedVehicle.name}</h4>
                   <p className="text-xs text-muted-foreground font-mono">{selectedVehicle.registrationNumber} • {selectedVehicle.type}</p>
                 </div>
               </div>
@@ -479,54 +479,54 @@ export default function VehiclesPage() {
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
                 <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Total Dispatches</span>
-                <span className="block text-lg font-black text-white">{detailsStats.tripsCount}</span>
+                <span className="block text-lg font-black text-foreground">{detailsStats.tripsCount}</span>
               </div>
               <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
                 <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Shop Visits</span>
-                <span className="block text-lg font-black text-white">{detailsStats.serviceCount}</span>
+                <span className="block text-lg font-black text-foreground">{detailsStats.serviceCount}</span>
               </div>
               <div className="p-3 bg-muted/20 border border-border/40 rounded-xl text-center space-y-1">
                 <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Fuel Logged</span>
-                <span className="block text-lg font-black text-white">{formatNumber(detailsStats.totalFuel)} L</span>
+                <span className="block text-lg font-black text-foreground">{formatNumber(detailsStats.totalFuel)} L</span>
               </div>
             </div>
 
             {/* Specs detail layout */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <span className="block text-xs font-bold uppercase text-white tracking-wider border-b border-border/40 pb-1">Spec Details</span>
+                <span className="block text-xs font-bold uppercase text-foreground tracking-wider border-b border-border/40 pb-1">Spec Details</span>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Model Config:</span>
-                    <span className="font-semibold text-white">{selectedVehicle.model}</span>
+                    <span className="font-semibold text-foreground">{selectedVehicle.model}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Max Cargo weight:</span>
-                    <span className="font-semibold text-white">{formatNumber(selectedVehicle.maxCapacity)} kg</span>
+                    <span className="font-semibold text-foreground">{formatNumber(selectedVehicle.maxCapacity)} kg</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Odometer:</span>
-                    <span className="font-semibold text-white">{formatNumber(selectedVehicle.odometer)} km</span>
+                    <span className="font-semibold text-foreground">{formatNumber(selectedVehicle.odometer)} km</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <span className="block text-xs font-bold uppercase text-white tracking-wider border-b border-border/40 pb-1">Financial & ROI</span>
+                <span className="block text-xs font-bold uppercase text-foreground tracking-wider border-b border-border/40 pb-1">Financial & ROI</span>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Acquisition Cost:</span>
-                    <span className="font-semibold text-white">{formatCurrency(selectedVehicle.acquisitionCost)}</span>
+                    <span className="font-semibold text-foreground">{formatCurrency(selectedVehicle.acquisitionCost)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Est. Maintenance:</span>
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-foreground">
                       {formatCurrency(maintenanceLogs.filter(m => m.vehicleId === selectedVehicle.id).reduce((sum, m) => sum + m.cost, 0))}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Est. Fuel Cost:</span>
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-foreground">
                       {formatCurrency(fuelLogs.filter(f => f.vehicleId === selectedVehicle.id).reduce((sum, f) => sum + f.cost, 0))}
                     </span>
                   </div>

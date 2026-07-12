@@ -164,7 +164,7 @@ export default function ReportsPage() {
         {/* Header Options */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <FileText className="h-8 w-8 text-primary shrink-0" />
               <span>Operational Audits</span>
             </h1>
@@ -185,7 +185,7 @@ export default function ReportsPage() {
             <Button 
               variant="primary" 
               onClick={handlePrintPDF}
-              className="text-xs gap-1.5 h-10 bg-primary/20 text-primary border border-primary/30 hover:bg-primary hover:text-white"
+              className="text-xs gap-1.5 h-10 bg-primary/20 text-primary border border-primary/30 hover:bg-primary hover:text-primary-foreground"
             >
               <Printer className="h-4 w-4" />
               Print / Export PDF
@@ -197,7 +197,7 @@ export default function ReportsPage() {
         <div className="hidden print:block border-b border-border/80 pb-4 mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">TransitOps Platform Report</span>
+              <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-foreground">TransitOps Platform Report</span>
               <p className="text-xs text-muted-foreground font-mono mt-1">Audit Type: {reportType} Performance Ledger | Date: 2026-07-12</p>
             </div>
             <div className="text-right">
@@ -246,7 +246,7 @@ export default function ReportsPage() {
         {/* Dynamic Preview Ledger Layout */}
         <Card className="overflow-hidden border-border bg-card/25 backdrop-blur-md glass-panel">
           <CardHeader className="bg-muted/40 border-b border-border/40 py-4 print:py-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-white">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-foreground">
               Report Summary Preview ({reportType})
             </CardTitle>
           </CardHeader>
@@ -268,7 +268,7 @@ export default function ReportsPage() {
                       <th className="p-4 text-right">Roster Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/20 text-white">
+                  <tbody className="divide-y divide-border/20 text-foreground">
                     {(reportData as any[]).map((v) => (
                       <tr key={v.id} className="hover:bg-muted/10 print:hover:bg-transparent">
                         <td className="p-4 font-mono font-bold uppercase text-primary">{v.registration}</td>
@@ -303,7 +303,7 @@ export default function ReportsPage() {
                       <th className="p-4 text-right">Debit Total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/20 text-white">
+                  <tbody className="divide-y divide-border/20 text-foreground">
                     {(reportData as any[]).map((f, idx) => (
                       <tr key={idx} className="hover:bg-muted/10 print:hover:bg-transparent">
                         <td className="p-4 font-bold text-sm text-primary">{f.category}</td>
@@ -313,7 +313,7 @@ export default function ReportsPage() {
                     ))}
                     {/* TOTAL LINE */}
                     <tr className="bg-muted/40 font-bold border-t border-border/80">
-                      <td className="p-4 text-base font-black text-white">Consolidated Debit Total</td>
+                      <td className="p-4 text-base font-black text-foreground">Consolidated Debit Total</td>
                       <td className="p-4"></td>
                       <td className="p-4 text-right font-black text-rose-400 text-base">
                         {formatCurrency((reportData as any[]).reduce((sum, f) => sum + f.debit, 0))}
@@ -336,7 +336,7 @@ export default function ReportsPage() {
                       <th className="p-4 text-right">Roster Compliance</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/20 text-white">
+                  <tbody className="divide-y divide-border/20 text-foreground">
                     {(reportData as any[]).map((d) => (
                       <tr key={d.id} className="hover:bg-muted/10 print:hover:bg-transparent">
                         <td className="p-4 font-bold text-sm">{d.name}</td>

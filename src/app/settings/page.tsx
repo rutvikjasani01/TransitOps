@@ -69,7 +69,7 @@ export default function SettingsPage() {
         
         {/* Title */}
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
             <Settings className="h-8 w-8 text-primary shrink-0" />
             <span>Platform Configurations</span>
           </h1>
@@ -89,7 +89,7 @@ export default function SettingsPage() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-white">Security File Details</CardTitle>
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Security File Details</CardTitle>
                     <CardDescription className="text-xs text-muted-foreground mt-0.5">Manage credentials details and user access parameters.</CardDescription>
                   </div>
                   <Badge variant="primary" className="text-[10px] uppercase font-bold py-0.5 px-2">
@@ -133,7 +133,7 @@ export default function SettingsPage() {
             {/* PASSWORD SECURITY CARD */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white">Password Authentication</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Password Authentication</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground mt-0.5">Edit password parameters. Minimum length is 6 characters.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => setShowPass(!showPass)}
-                        className="absolute right-3 top-3 text-muted-foreground hover:text-white cursor-pointer"
+                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                       >
                         {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -200,7 +200,7 @@ export default function SettingsPage() {
             {/* LOCALIZATION SETTINGS CARD */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white">Regional Options</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">Regional Options</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground mt-0.5">Control layout languages and display modes.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -231,8 +231,8 @@ export default function SettingsPage() {
                       onClick={() => theme === "light" && toggleTheme()}
                       className={`py-2 px-3 text-xs font-bold rounded-lg border text-center cursor-pointer transition-all ${
                         theme === "dark"
-                          ? "border-primary bg-primary/10 text-white"
-                          : "border-white/5 bg-slate-900/60 text-slate-400 hover:text-white"
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-white/5 bg-slate-900/60 text-slate-400 hover:text-foreground"
                       }`}
                     >
                       Dark Mode
@@ -242,7 +242,7 @@ export default function SettingsPage() {
                       className={`py-2 px-3 text-xs font-bold rounded-lg border text-center cursor-pointer transition-all ${
                         theme === "light"
                           ? "border-primary bg-primary/10 text-slate-950"
-                          : "border-white/5 bg-slate-900/60 text-slate-400 hover:text-white"
+                          : "border-white/5 bg-slate-900/60 text-slate-400 hover:text-foreground"
                       }`}
                     >
                       Light Mode
@@ -256,14 +256,14 @@ export default function SettingsPage() {
             {/* NOTIFICATION SETTINGS CARD */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white">System Alert Controls</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">System Alert Controls</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground mt-0.5">Select what notifications you receive.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
                   <div className="space-y-0.5">
-                    <span className="block text-xs font-bold text-white">System Notifications</span>
+                    <span className="block text-xs font-bold text-foreground">System Notifications</span>
                     <span className="text-[10px] text-muted-foreground block">Receive logs for dispatches.</span>
                   </div>
                   <Switch
@@ -275,7 +275,7 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between py-1.5 border-b border-white/5">
                   <div className="space-y-0.5">
-                    <span className="block text-xs font-bold text-white">Maintenance Alerts</span>
+                    <span className="block text-xs font-bold text-foreground">Maintenance Alerts</span>
                     <span className="text-[10px] text-muted-foreground block">Warn when vehicles enter workshop status.</span>
                   </div>
                   <Switch
@@ -287,7 +287,7 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between py-1.5">
                   <div className="space-y-0.5">
-                    <span className="block text-xs font-bold text-white">Compliance Alerts</span>
+                    <span className="block text-xs font-bold text-foreground">Compliance Alerts</span>
                     <span className="text-[10px] text-muted-foreground block">Warn when CDL expiries occur.</span>
                   </div>
                   <Switch

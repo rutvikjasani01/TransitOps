@@ -131,7 +131,7 @@ export default function FuelPage() {
         {/* Header Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center space-x-2">
               <Droplet className="h-8 w-8 text-primary shrink-0" />
               <span>Fuel Administration</span>
             </h1>
@@ -158,7 +158,7 @@ export default function FuelPage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Volume Logged</span>
-              <span className="block text-xl font-black text-white">{formatNumber(stats.totalLiters)} Liters</span>
+              <span className="block text-xl font-black text-foreground">{formatNumber(stats.totalLiters)} Liters</span>
             </div>
           </div>
 
@@ -168,7 +168,7 @@ export default function FuelPage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Accumulated Spend</span>
-              <span className="block text-xl font-black text-white">{formatCurrency(stats.totalCost)}</span>
+              <span className="block text-xl font-black text-foreground">{formatCurrency(stats.totalCost)}</span>
             </div>
           </div>
 
@@ -178,7 +178,7 @@ export default function FuelPage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Avg Price per Liter</span>
-              <span className="block text-xl font-black text-white">{formatCurrency(stats.avgPrice)}/L</span>
+              <span className="block text-xl font-black text-foreground">{formatCurrency(stats.avgPrice)}/L</span>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ export default function FuelPage() {
             </div>
             <div>
               <span className="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Average Fleet Economy</span>
-              <span className="block text-xl font-black text-white">{stats.avgEco} km/L</span>
+              <span className="block text-xl font-black text-foreground">{stats.avgEco} km/L</span>
             </div>
           </div>
 
@@ -199,7 +199,7 @@ export default function FuelPage() {
           {/* Chart visual */}
           <div className="lg:col-span-1 p-5 rounded-xl border border-border bg-card/45 glass-panel flex flex-col justify-between">
             <div className="space-y-1 pb-4">
-              <h3 className="font-bold text-white text-sm uppercase tracking-wider">Liters Logged by Vehicle</h3>
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wider">Liters Logged by Vehicle</h3>
               <p className="text-xs text-muted-foreground">Volume stats filtered per registration number.</p>
             </div>
             {chartData.length > 0 ? (

@@ -74,9 +74,15 @@ export function Shell({ children }: { children: React.ReactNode }) {
   if (!mounted || !currentUser) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground">Verifying access credentials...</p>
+        <div className="flex flex-col items-center space-y-5 animate-fade-in">
+          <div className="relative">
+            <div className="loader-ring" />
+            <Icons.Truck className="absolute inset-0 m-auto h-4 w-4 text-primary" />
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-sm font-semibold text-foreground">TransitOps</p>
+            <p className="text-xs text-muted-foreground">Verifying access credentials...</p>
+          </div>
         </div>
       </div>
     );
@@ -131,31 +137,56 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          {!sidebarCollapsed && (
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+              Navigation
+            </p>
+          )}
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
               <button
                 key={item.path}
                 onClick={() => router.push(item.path)}
-                className={`w-full flex items-center p-3 rounded-lg text-sm font-medium transition-all group cursor-pointer ${
+                title={sidebarCollapsed ? item.name : undefined}
+                className={`w-full flex items-center p-2.5 rounded-lg text-sm font-medium transition-all group cursor-pointer relative ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                    : "text-muted-foreground hover:bg-accent/40 hover:text-foreground"
+                    ? "text-primary-foreground font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
                 }`}
               >
-                <DynamicIcon name={item.icon} className={`h-5 w-5 ${sidebarCollapsed ? "mx-auto" : "mr-3"}`} />
-                {!sidebarCollapsed && <span>{item.name}</span>}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    className="nav-slide-active"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <DynamicIcon name={item.icon} className={`h-[18px] w-[18px] z-10 transition-transform group-hover:scale-110 duration-200 ${sidebarCollapsed ? "mx-auto" : "mr-3"}`} />
+                {!sidebarCollapsed && <span className="z-10">{item.name}</span>}
               </button>
             );
           })}
         </nav>
 
-        {/* Sidebar Toggle at Bottom */}
-        <div className="p-4 border-t border-border/40">
+        {/* Sidebar Footer: User + Collapse */}
+        <div className="p-3 border-t border-border/40 space-y-2">
+          {!sidebarCollapsed && (
+            <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-accent/20 border border-border/30">
+              <div className="h-8 w-8 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0 text-[10px] font-black text-primary glow-primary">
+                {currentUser.name.split(" ").map(n => n[0]).join("")}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-foreground truncate">{currentUser.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{currentRole}</p>
+              </div>
+            </div>
+          )}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:bg-accent/40 hover:text-foreground cursor-pointer"
+            className="w-full flex items-center justify-center p-2 rounded-lg text-muted-foreground hover:bg-accent/40 hover:text-foreground cursor-pointer transition-colors"
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {sidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </button>
@@ -180,7 +211,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.25 }}
-              className="fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border p-5 flex flex-col md:hidden"
+              className="fixed inset-y-0 left-0 z-40 w-72 glass-panel border-r border-border p-5 flex flex-col md:hidden shadow-2xl"
             >
               <div className="flex items-center justify-between pb-6 border-b border-border/50">
                 <div className="flex items-center space-x-2">
@@ -326,14 +357,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-80 rounded-xl border border-border bg-card p-3 shadow-lg glass-panel z-50 overflow-hidden"
+                      className="absolute right-0 mt-2 w-80 rounded-xl border border-white/10 p-3 shadow-2xl glass-panel z-50 overflow-hidden hud-glow-primary hud-border-glow"
                     >
                       <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/50">
-                        <span className="font-bold text-sm">System Alerts</span>
+                        <span className="font-extrabold text-sm text-foreground tracking-tight">System Alerts</span>
                         <div className="flex space-x-2">
                           <button
                             onClick={clearAllNotifications}
-                            className="text-xs text-muted-foreground hover:text-destructive flex items-center space-x-1 cursor-pointer"
+                            className="text-xs text-muted-foreground hover:text-destructive flex items-center space-x-1 cursor-pointer transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span>Clear</span>
@@ -345,37 +376,45 @@ export function Shell({ children }: { children: React.ReactNode }) {
                           notifications.map((n) => (
                             <div
                               key={n.id}
-                              className={`p-2.5 rounded-lg border text-xs transition-colors flex items-start ${
+                              className={`p-2.5 rounded-lg border text-xs transition-all duration-200 flex items-start hud-border-glow relative overflow-hidden ${
                                 n.read
-                                  ? "bg-muted/10 border-border/30"
-                                  : "bg-primary/5 border-primary/20"
+                                  ? "bg-muted/10 border-border/30 opacity-75"
+                                  : n.type === "warning"
+                                  ? "bg-amber-500/10 border-amber-500/30 hud-border-glow-warning"
+                                  : n.type === "success"
+                                  ? "bg-emerald-500/10 border-emerald-500/30 hud-border-glow-success"
+                                  : "bg-primary/10 border-primary/30 hud-border-glow-primary"
                               }`}
                             >
                               <div className="flex-1">
                                 <div className="flex items-center justify-between font-bold">
-                                  <span className={n.type === "warning" ? "text-warning" : "text-foreground"}>
+                                  <span className={
+                                    n.type === "warning" ? "text-warning" : 
+                                    n.type === "success" ? "text-success" : 
+                                    "text-primary"
+                                  }>
                                     {n.title}
                                   </span>
                                   {!n.read && (
                                     <button
                                       onClick={() => markNotificationAsRead(n.id)}
-                                      className="text-[10px] text-primary hover:underline flex items-center space-x-0.5 cursor-pointer"
+                                      className="text-[10px] text-primary hover:text-indigo-400 hover:underline flex items-center space-x-0.5 cursor-pointer transition-colors"
                                     >
                                       <Check className="h-3 w-3" />
                                       <span>Mark Read</span>
                                     </button>
                                   )}
                                 </div>
-                                <p className="text-muted-foreground mt-1 leading-normal">{n.message}</p>
-                                <span className="text-[10px] text-muted-foreground/60 block mt-1">{n.timestamp}</span>
+                                <p className="text-muted-foreground mt-1 leading-normal font-medium">{n.message}</p>
+                                <span className="text-[10px] text-muted-foreground/50 block mt-1 font-mono">{n.timestamp}</span>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="py-8 text-center text-muted-foreground flex flex-col items-center space-y-1">
-                            <Icons.CheckCircle2 className="h-8 w-8 text-success/50" />
-                            <p className="font-semibold text-xs text-foreground/80">All clear</p>
-                            <p className="text-[10px]">No pending operational alerts.</p>
+                          <div className="py-8 text-center text-muted-foreground flex flex-col items-center space-y-2">
+                            <Icons.CheckCircle2 className="h-8 w-8 text-success/70" />
+                            <p className="font-bold text-xs text-foreground/80">All Operations Clear</p>
+                            <p className="text-[10px] text-muted-foreground/60">No pending operational warnings.</p>
                           </div>
                         )}
                       </div>
@@ -389,13 +428,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div className="relative">
               <Button
                 variant="ghost"
-                className="flex items-center space-x-2 h-9 py-1 px-2.5 rounded-lg hover:bg-accent/40 cursor-pointer"
+                className="flex items-center space-x-2 h-9 py-1 px-2.5 rounded-lg hover:bg-accent/40 cursor-pointer transition-transform active:scale-95"
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
                   setNotifDropdownOpen(false);
                 }}
               >
-                <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0 text-[10px] font-bold text-primary">
+                <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden shrink-0 text-[10px] font-black text-primary glow-primary ring-1 ring-primary/30">
                   {currentUser.name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div className="text-left hidden sm:block">
@@ -412,13 +451,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card p-2 shadow-lg glass-panel z-50"
+                      className="absolute right-0 mt-2 w-56 rounded-xl border border-white/10 bg-card p-2 shadow-2xl glass-panel z-50 hud-glow-primary hud-border-glow"
                     >
-                      <div className="px-3 py-2 border-b border-border/50 mb-1">
-                        <span className="block text-xs font-bold text-foreground">{currentUser.name}</span>
-                        <span className="block text-[10px] text-muted-foreground truncate">{currentUser.email}</span>
+                      <div className="px-3 py-2 border-b border-border/50 mb-1.5">
+                        <span className="block text-xs font-black text-foreground">{currentUser.name}</span>
+                        <span className="block text-[10px] text-muted-foreground truncate font-mono">{currentUser.email}</span>
                         <div className="mt-1.5">
-                          <Badge variant="primary" className="text-[9px] py-0 px-1.5">
+                          <Badge variant="primary" className="text-[9px] py-0 px-2 font-extrabold uppercase tracking-wide">
                             {currentRole}
                           </Badge>
                         </div>
@@ -429,15 +468,15 @@ export function Shell({ children }: { children: React.ReactNode }) {
                           setProfileDropdownOpen(false);
                           router.push("/settings");
                         }}
-                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer"
+                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-muted-foreground hover:bg-accent/40 hover:text-foreground cursor-pointer transition-all duration-200 hover:translate-x-1"
                       >
-                        <Settings className="h-4 w-4 mr-2" />
+                        <Settings className="h-4 w-4 mr-2 text-primary" />
                         Settings
                       </button>
 
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 cursor-pointer"
+                        className="w-full flex items-center px-3 py-2 rounded-lg text-xs font-semibold text-destructive hover:bg-destructive/10 cursor-pointer transition-all duration-200 hover:translate-x-1"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
                         Sign Out
@@ -453,8 +492,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Dynamic Route Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          {children}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+          <div className="page-enter max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
