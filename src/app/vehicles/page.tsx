@@ -244,7 +244,7 @@ export default function VehiclesPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-blue-400 hover:text-foreground"
+            className="h-8 w-8 text-primary hover:bg-primary/10"
             onClick={() => handleOpenDetails(row)}
             title="Details"
           >

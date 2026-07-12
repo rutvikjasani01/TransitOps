@@ -1,0 +1,17 @@
+import { Router } from "express";
+import * as controller from "../controllers/fuel.controller.js";
+import { ROLES } from "../config/roles.js";
+import { authenticate } from "../middleware/authenticate.js";
+import { authorize } from "../middleware/authorize.js";
+import { validateRequest } from "../middleware/validateRequest.js";
+import { createFuelLogValidator, fuelLogIdValidator, listFuelLogsValidator, updateFuelLogValidator } from "../validators/fuel.validator.js";
+const router = Router();
+const fuelManagers = [ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST];
+router.use(authenticate);
+router.get("/", listFuelLogsValidator, validateRequest, controller.list);
+router.get("/summary", listFuelLogsValidator, validateRequest, controller.summary);
+router.get("/:fuelLogId", fuelLogIdValidator, validateRequest, controller.getById);
+router.post("/", authorize(...fuelManagers), createFuelLogValidator, validateRequest, controller.create);
+router.patch("/:fuelLogId", authorize(...fuelManagers), fuelLogIdValidator, updateFuelLogValidator, validateRequest, controller.update);
+router.delete("/:fuelLogId", authorize(...fuelManagers), fuelLogIdValidator, validateRequest, controller.remove);
+export default router;

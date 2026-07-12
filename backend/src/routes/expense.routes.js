@@ -1,0 +1,10 @@
+import { Router } from "express";
+import * as controller from "../controllers/expense.controller.js";
+import { ROLES } from "../config/roles.js";
+import { authenticate } from "../middleware/authenticate.js";
+import { authorize } from "../middleware/authorize.js";
+import { validateRequest } from "../middleware/validateRequest.js";
+import { createExpenseValidator, expenseIdValidator, listExpensesValidator, updateExpenseValidator } from "../validators/expense.validator.js";
+const router = Router(); const expenseManagers = [ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST];
+router.use(authenticate); router.get("/", listExpensesValidator, validateRequest, controller.list); router.get("/summary", listExpensesValidator, validateRequest, controller.summary); router.get("/:expenseId", expenseIdValidator, validateRequest, controller.getById); router.post("/", authorize(...expenseManagers), createExpenseValidator, validateRequest, controller.create); router.patch("/:expenseId", authorize(...expenseManagers), expenseIdValidator, updateExpenseValidator, validateRequest, controller.update); router.delete("/:expenseId", authorize(...expenseManagers), expenseIdValidator, validateRequest, controller.remove);
+export default router;

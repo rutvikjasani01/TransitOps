@@ -206,11 +206,18 @@ export default function DashboardPage() {
       <div className="space-y-6">
         
         {/* Title and Top Header Actions */}
-        <PageHeader
-          title="Operations Control"
-          description="TransitOps Command Center – Real-time tracking and logistics intelligence dashboard."
-          icon={<LayoutDashboard className="h-5 w-5" />}
-          actions={
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#E85D75] flex items-center space-x-2">
+              <LayoutDashboard className="h-8 w-8 text-primary shrink-0" />
+              <span>Operations Control</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              TransitOps Command Center – Real-time tracking and logistics intelligence dashboard.
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
             <Button 
               variant="outline" 
               onClick={() => {
@@ -292,36 +299,59 @@ export default function DashboardPage() {
 
         {/* Dynamic Analytics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Fleet Utilization"
-            value={`${stats.utilizationRate}%`}
-            subtitle={`${stats.activeV} Active / ${stats.totalV - stats.retiredV} Operable Vehicles`}
-            icon={<Activity className="h-4 w-4" />}
-            accent="blue"
-          />
-          <StatCard
-            title="Active Dispatches"
-            value={`${stats.activeT} Trips`}
-            subtitle={`${stats.pendingT} Pending / ${stats.completedT} Completed`}
-            icon={<Route className="h-4 w-4" />}
-            accent="orange"
-          />
-          <StatCard
-            title="Operating Expenses"
-            value={formatCurrency(stats.totalExp)}
-            subtitle={`Fuel: ${formatCurrency(stats.fuelCost)} | Maintenance: ${formatCurrency(stats.maintCost)}`}
-            icon={<DollarSign className="h-4 w-4" />}
-            accent="emerald"
-          />
-          <StatCard
-            title="Fuel Efficiency"
-            value={`${stats.avgEfficiency} km/L`}
-            subtitle={
-              <>Vehicle ROI estimate: <span className="text-emerald-500 font-bold">+{stats.vehicleROI}%</span></>
-            }
-            icon={<Droplet className="h-4 w-4" />}
-            accent="purple"
-          />
+          
+          <Card hoverable className="border-l-4 border-l-primary">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Fleet Utilization</span>
+              <Activity className="h-4.5 w-4.5 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black">{stats.utilizationRate}%</div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {stats.activeV} Active / {stats.totalV - stats.retiredV} Operable Vehicles
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card hoverable className="border-l-4 border-l-orange-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Active Dispatches</span>
+              <Route className="h-4.5 w-4.5 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black">{stats.activeT} Trips</div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {stats.pendingT} Pending / {stats.completedT} Completed
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card hoverable className="border-l-4 border-l-emerald-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Operating Expenses</span>
+              <DollarSign className="h-4.5 w-4.5 text-emerald-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black">{formatCurrency(stats.totalExp)}</div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Fuel: {formatCurrency(stats.fuelCost)} | Maintenance: {formatCurrency(stats.maintCost)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card hoverable className="border-l-4 border-l-purple-500">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Fuel Efficiency</span>
+              <Droplet className="h-4.5 w-4.5 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-black">{stats.avgEfficiency} km/L</div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Vehicle ROI estimate: <span className="text-emerald-400 font-bold">+{stats.vehicleROI}%</span>
+              </p>
+            </CardContent>
+          </Card>
+
         </div>
 
         {/* Quick Actions Panel */}

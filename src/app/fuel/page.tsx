@@ -153,7 +153,7 @@ export default function FuelPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <div className="rounded-xl border border-white/5 bg-card/45 p-4 flex items-center space-x-4 glass-panel">
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500 shrink-0">
+            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl text-primary shrink-0">
               <Fuel className="h-5 w-5" />
             </div>
             <div>

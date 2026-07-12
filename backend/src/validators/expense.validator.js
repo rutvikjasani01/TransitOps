@@ -1,0 +1,11 @@
+import { body, param, query } from "express-validator";
+import { EXPENSE_CATEGORIES } from "../config/expense.js";
+const category = body("category").isIn(EXPENSE_CATEGORIES).withMessage(`Category must be one of: ${EXPENSE_CATEGORIES.join(", ")}.`);
+const amount = body("amount").isFloat({ gt: 0, max: 100000000 }).withMessage("Amount must be greater than zero.").toFloat();
+const date = body("date").isISO8601({ strict: true }).withMessage("Date must be a valid YYYY-MM-DD date.");
+const description = body("description").trim().notEmpty().withMessage("Description is required.").isLength({ max: 500 }).withMessage("Description must be at most 500 characters.");
+const vehicleId = body("vehicleId").optional({ values: "null" }).trim().notEmpty().withMessage("Vehicle id cannot be empty.");
+export const expenseIdValidator = [param("expenseId").trim().notEmpty().withMessage("Expense id is required.")];
+export const createExpenseValidator = [category, amount, date, description, vehicleId];
+export const updateExpenseValidator = [category.optional(), amount.optional(), date.optional(), description.optional(), vehicleId, body().custom((value) => Object.keys(value).some((key) => ["category", "amount", "date", "description", "vehicleId"].includes(key))).withMessage("At least one editable expense field is required.")];
+export const listExpensesValidator = [query("category").optional().isIn(EXPENSE_CATEGORIES), query("vehicleId").optional().trim().notEmpty(), query("from").optional().isISO8601({ strict: true }), query("to").optional().isISO8601({ strict: true })];

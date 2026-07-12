@@ -1,0 +1,13 @@
+import { body, param, query } from "express-validator";
+import { DRIVER_STATUSES, LICENSE_CATEGORIES } from "../config/driver.js";
+const name = body("name").trim().notEmpty().withMessage("Driver name is required.").isLength({ max: 160 }).withMessage("Driver name must be at most 160 characters.");
+const licenseNumber = body("licenseNumber").trim().notEmpty().withMessage("License number is required.").isLength({ max: 64 }).withMessage("License number must be at most 64 characters.");
+const licenseCategory = body("licenseCategory").isIn(LICENSE_CATEGORIES).withMessage(`License category must be one of: ${LICENSE_CATEGORIES.join(", ")}.`);
+const expiryDate = body("expiryDate").isISO8601({ strict: true }).withMessage("Expiry date must be a valid YYYY-MM-DD date.");
+const contactNumber = body("contactNumber").trim().notEmpty().withMessage("Contact number is required.").isLength({ max: 40 }).withMessage("Contact number must be at most 40 characters.");
+const safetyScore = body("safetyScore").isFloat({ min: 0, max: 100 }).withMessage("Safety score must be between 0 and 100.").toFloat();
+export const driverIdValidator = [param("driverId").trim().notEmpty().withMessage("Driver id is required.")];
+export const createDriverValidator = [name, licenseNumber, licenseCategory, expiryDate, contactNumber, safetyScore, body("status").optional().isIn(["Available", "Off Duty", "Suspended"]).withMessage("New drivers cannot be created with On Trip status.")];
+export const updateDriverValidator = [name.optional(), licenseNumber.optional(), licenseCategory.optional(), expiryDate.optional(), contactNumber.optional(), safetyScore.optional(), body("status").not().exists().withMessage("Use PATCH /drivers/:driverId/status to change driver status."), body().custom((value) => Object.keys(value).some((key) => ["name", "licenseNumber", "licenseCategory", "expiryDate", "contactNumber", "safetyScore"].includes(key))).withMessage("At least one editable driver field is required.")];
+export const updateDriverStatusValidator = [body("status").isIn(DRIVER_STATUSES).withMessage(`Status must be one of: ${DRIVER_STATUSES.join(", ")}.`)];
+export const listDriversValidator = [query("status").optional().isIn(DRIVER_STATUSES), query("search").optional().trim().isLength({ max: 160 })];

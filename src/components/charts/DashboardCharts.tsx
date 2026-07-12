@@ -19,13 +19,12 @@ import {
   Legend
 } from "recharts";
 
-// Modern colors mapping
 const COLORS = {
-  primary: "#3b82f6",     // blue-500
-  secondary: "#6366f1",   // indigo-500
-  success: "#10b981",     // emerald-500
-  warning: "#f59e0b",     // amber-500
-  destructive: "#ef4444", // red-500
+  primary: "#E85D75",     // rose-pink/red
+  secondary: "#F36A8A",   // light pink
+  success: "#16C784",     // green accent
+  warning: "#F59E0B",     // amber warning
+  destructive: "#EF4444", // red danger
   muted: "#64748b",       // slate-500
   purple: "#8b5cf6"       // violet-500
 };

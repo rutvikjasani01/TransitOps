@@ -91,6 +91,43 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Initializing Fleet...");
+
+  useEffect(() => {
+    const playTrigger = sessionStorage.getItem("play_navix_splash");
+    if (playTrigger === "true") {
+      setShowSplash(true);
+      sessionStorage.removeItem("play_navix_splash");
+
+      const messages = [
+        "Initializing Fleet...",
+        "Connecting Vehicles...",
+        "Loading Drivers...",
+        "Checking Fleet Status...",
+        "Optimizing Routes...",
+        "Fetching Analytics...",
+        "Preparing Dashboard...",
+        "Dashboard Ready..."
+      ];
+      let msgIdx = 0;
+      const interval = setInterval(() => {
+        msgIdx++;
+        if (msgIdx < messages.length) {
+          setLoadingMessage(messages[msgIdx]);
+        }
+      }, 300); // 8 messages * 300ms = 2.4s total duration!
+
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 2500);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timer);
+      };
+    }
+  }, []);
 
   // Custom Splash Loader states
   const [showLoading, setShowLoading] = useState(false);
@@ -213,6 +250,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
     );
   }
 
+
+
   const navItems = ROLE_NAVIGATION[currentRole] || [];
   const unreadNotifsCount = notifications.filter(n => !n.read).length;
 
@@ -236,29 +275,37 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <div className="relative min-h-screen">
-      
-      {/* 1. Splash Screen Overlay */}
-      <AnimatePresence>
-        {showLoading && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: loaderState === "transitioning" ? 0 : 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col items-center justify-center select-none overflow-hidden"
+    <div className="min-h-screen flex bg-background/95">
+      {/* Sidebar - Desktop */}
+      <aside
+        className={`hidden md:flex flex-col border-r border-border/40 bg-card/45 backdrop-blur-xl transition-all duration-300 relative z-20 ${
+          sidebarCollapsed ? "w-20" : "w-64"
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="h-16 flex items-center justify-between px-6 border-b border-border/40">
+          <motion.div 
+            layoutId="navix-logo-container" 
+            className="flex items-center space-x-2.5 overflow-hidden"
           >
-            {/* Minimal Background Gradients */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#F1F5F9] via-[#F8FAFC] to-white z-[-1]" />
-            
-            <div className="flex flex-col items-center max-w-sm w-full px-6 space-y-12">
-              {/* Centered NAVIX Logo Source (visible only during progress bar phase) */}
-              <div 
-                id="navix-source-logo"
-                className={`transition-opacity duration-300 ${loaderState === "transitioning" ? "opacity-0" : "opacity-100"}`}
+            <motion.div 
+              layoutId="navix-logo-icon"
+              className="p-2 bg-primary/10 rounded-xl text-primary shrink-0 border border-primary/20"
+            >
+              <Icons.Navigation className="h-4.5 w-4.5 fill-primary rotate-[45deg]" />
+            </motion.div>
+            {!sidebarCollapsed && (
+              <motion.span 
+                layoutId="navix-logo-text"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-black text-lg tracking-tight text-foreground"
               >
-                <NavixLogo size="lg" />
-              </div>
+                NAVIX
+              </motion.span>
+            )}
+          </motion.div>
+        </div>
 
         {/* Sidebar Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -338,9 +385,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
               className="fixed inset-y-0 left-0 z-40 w-72 glass-panel border-r border-border p-5 flex flex-col md:hidden shadow-2xl"
             >
               <div className="flex items-center justify-between pb-6 border-b border-border/50">
-                <div className="flex items-center space-x-2">
-                  <Icons.Truck className="h-6 w-6 text-primary" />
-                  <span className="font-extrabold text-lg text-foreground">TransitOps</span>
+                <div className="flex items-center space-x-2.5">
+                  <div className="p-1.5 bg-primary/10 rounded-lg text-primary border border-primary/20">
+                    <Icons.Navigation className="h-4 w-4 fill-primary rotate-[45deg]" />
+                  </div>
+                  <span className="font-black text-lg text-foreground">NAVIX</span>
                 </div>
               </div>
             </div>
@@ -723,6 +772,78 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
+
+      {/* Splash Screen Overlay */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background text-foreground"
+          >
+            {/* Background gradients */}
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-primary/5 blur-[120px]" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-accent/5 blur-[120px]" />
+
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex flex-col items-center space-y-6 z-10"
+            >
+              {/* Logo Squircle with Compass Needle */}
+              <motion.div 
+                layoutId="navix-logo-container" 
+                className="flex items-center space-x-3"
+              >
+                <motion.div 
+                  layoutId="navix-logo-icon"
+                  className="p-3 bg-primary/15 rounded-2xl border border-primary/30 text-primary shrink-0 shadow-lg shadow-primary/10"
+                >
+                  <Icons.Navigation className="h-8 w-8 fill-primary text-primary rotate-[45deg]" />
+                </motion.div>
+                <motion.span 
+                  layoutId="navix-logo-text"
+                  className="text-4xl font-black tracking-tight text-slate-900 dark:text-white"
+                >
+                  NAVIX
+                </motion.span>
+              </motion.div>
+
+              {/* Loader bar and truck */}
+              <div className="relative w-64 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-visible mt-4">
+                {/* Filled road bar */}
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2.0, ease: "easeInOut" }}
+                  className="absolute left-0 top-0 h-full bg-primary rounded-full shadow-lg shadow-primary/50"
+                />
+                {/* Truck moving along the line */}
+                <motion.div
+                  initial={{ left: -10 }}
+                  animate={{ left: "95%" }}
+                  transition={{ duration: 2.0, ease: "easeInOut" }}
+                  className="absolute top-[-24px] z-10 text-primary"
+                >
+                  <Icons.Truck className="h-6 w-6" />
+                </motion.div>
+              </div>
+
+              {/* Status Message */}
+              <motion.p 
+                key={loadingMessage}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                className="text-xs tracking-wider uppercase font-semibold text-slate-500 dark:text-slate-400 min-h-[20px]"
+              >
+                {loadingMessage}
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
