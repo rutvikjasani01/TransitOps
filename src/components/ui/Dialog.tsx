@@ -25,16 +25,10 @@ export function Dialog({
   size = "md",
   showCloseButton = true
 }: DialogProps) {
-  // Prevent body scroll when open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
   const sizes = {
@@ -54,32 +48,33 @@ export function Dialog({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Modal Container */}
+          {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            initial={{ opacity: 0, scale: 0.94, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.94, y: 20 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "relative w-full overflow-hidden rounded-xl border border-border bg-card p-6 shadow-lg glass-panel z-10 my-8",
+              "relative w-full rounded-2xl border border-border/60 bg-card shadow-2xl z-10 my-8 overflow-hidden",
+              "glass-panel",
               sizes[size]
             )}
           >
             {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-border/50">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-foreground leading-none">{title}</h3>
+            <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/40">
+              <div className="space-y-1 pr-4">
+                <h3 className="text-base font-bold text-foreground leading-tight">{title}</h3>
                 {description && (
-                  <p className="text-sm text-muted-foreground">{description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
                 )}
               </div>
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                  className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                   <span className="sr-only">Close</span>
@@ -88,7 +83,7 @@ export function Dialog({
             </div>
 
             {/* Content */}
-            <div className="py-4 max-h-[70vh] overflow-y-auto">
+            <div className="px-6 py-5 max-h-[72vh] overflow-y-auto">
               {children}
             </div>
           </motion.div>
@@ -98,7 +93,6 @@ export function Dialog({
   );
 }
 
-// CONFIRMATION DIALOG
 export interface ConfirmDialogProps extends Omit<DialogProps, "children"> {
   onConfirm: () => void;
   confirmText?: string;
@@ -121,7 +115,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title={title} description={description} size={size}>
-      <div className="flex justify-end space-x-3 mt-4 pt-4 border-t border-border/50">
+      <div className="flex justify-end gap-3 mt-2">
         <Button variant="outline" onClick={onClose} disabled={isConfirming}>
           {cancelText}
         </Button>
