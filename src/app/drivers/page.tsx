@@ -86,7 +86,7 @@ export default function DriversPage() {
   };
 
   // Submit Handler
-  const handleSaveDriver = (e: React.FormEvent) => {
+  const handleSaveDriver = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -113,20 +113,28 @@ export default function DriversPage() {
 
     if (editingDriver) {
       // Edit Mode
-      updateDriver(editingDriver.id, payload);
-      toast(`Driver profile ${name} updated successfully.`, "success");
-      setFormOpen(false);
+      const res = await updateDriver(editingDriver.id, payload);
+      if (res.success) {
+        toast(`Driver profile ${name} updated successfully.`, "success");
+        setFormOpen(false);
+      } else {
+        toast(res.error || "Failed to update driver.", "error");
+      }
     } else {
       // Create Mode
-      addDriver(payload);
-      toast(`New driver ${name} registered in pool.`, "success");
-      setFormOpen(false);
+      const res = await addDriver(payload);
+      if (res.success) {
+        toast(`New driver ${name} registered in pool.`, "success");
+        setFormOpen(false);
+      } else {
+        toast(res.error || "Failed to register driver.", "error");
+      }
     }
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!selectedDriver) return;
-    const res = deleteDriver(selectedDriver.id);
+    const res = await deleteDriver(selectedDriver.id);
     if (res.success) {
       toast(`Driver ${selectedDriver.name} removed successfully.`, "success");
       setDeleteOpen(false);

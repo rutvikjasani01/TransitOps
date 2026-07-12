@@ -39,7 +39,7 @@ export function TripForm({ onClose }: { onClose: () => void }) {
     }
   }, [vehicleId, cargoWeight, vehicles]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -62,7 +62,7 @@ export function TripForm({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    const res = addTrip({
+    const res = await addTrip({
       source,
       destination,
       vehicleId,
@@ -222,7 +222,7 @@ export function MaintenanceForm({ onClose }: { onClose: () => void }) {
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -241,7 +241,7 @@ export function MaintenanceForm({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    const res = addMaintenance({
+    const res = await addMaintenance({
       vehicleId,
       type,
       cost,
@@ -361,7 +361,7 @@ export function FuelForm({ onClose }: { onClose: () => void }) {
     }
   }, [vehicleId, vehicles]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -379,7 +379,7 @@ export function FuelForm({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    const res = addFuelLog({
+    const res = await addFuelLog({
       vehicleId,
       liters,
       cost,

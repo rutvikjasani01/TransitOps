@@ -41,8 +41,8 @@ export default function TripsPage() {
     setDetailsModalOpen(true);
   };
 
-  const handleDispatch = (id: string) => {
-    const res = dispatchTrip(id);
+  const handleDispatch = async (id: string) => {
+    const res = await dispatchTrip(id);
     if (res.success) {
       toast("Trip successfully dispatched! Fleet status updated.", "success");
       // Update selected trip view in modal
@@ -53,8 +53,8 @@ export default function TripsPage() {
     }
   };
 
-  const handleComplete = (id: string) => {
-    const res = completeTrip(id);
+  const handleComplete = async (id: string) => {
+    const res = await completeTrip(id);
     if (res.success) {
       toast("Trip completed. Vehicle mileage and availability updated.", "success");
       const updated = trips.find(t => t.id === id);
@@ -64,8 +64,8 @@ export default function TripsPage() {
     }
   };
 
-  const handleCancel = (id: string) => {
-    const res = cancelTrip(id);
+  const handleCancel = async (id: string) => {
+    const res = await cancelTrip(id);
     if (res.success) {
       toast("Trip cancelled. Dedicated resources returned to pool.", "info");
       const updated = trips.find(t => t.id === id);
