@@ -3,7 +3,16 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Shield, Truck, Mail, Lock, UserCheck, ArrowRight } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Shield,
+  Truck,
+  Mail,
+  Lock,
+  UserCheck,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Switch, Label } from "@/components/ui/FormElements";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
@@ -23,7 +32,7 @@ export default function LoginPage() {
   const { login } = useTransitState();
   const { toast } = useToast();
 
-  const [email, setEmail] = useState("manager@transitops.com");
+  const [email, setEmail] = useState("manager@navix.com");
   const [password, setPassword] = useState("••••••••");
   const [role, setRole] = useState<UserRole>("Fleet Manager");
   const [showPassword, setShowPassword] = useState(false);
@@ -87,8 +96,8 @@ export default function LoginPage() {
             <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 backdrop-blur-md glow-primary">
               <Truck className="h-8 w-8 text-primary" />
             </div>
-            <span className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-indigo-400 bg-clip-text text-transparent">
-              TransitOps
+            <span className="text-3xl font-black tracking-tight text-[#0F172A] dark:text-white">
+              NAVIX
             </span>
           </div>
           <div className="space-y-4">
@@ -125,11 +134,21 @@ export default function LoginPage() {
           <Card className="glass-panel border-white/10 shadow-2xl hud-glow-primary">
             <CardHeader className="space-y-1">
               <div className="flex items-center space-x-2 md:hidden mb-4 text-primary">
-                <Truck className="h-6 w-6" />
-                <span className="font-bold text-xl tracking-tight text-white">TransitOps</span>
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="h-6 w-6" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <polygon points="3 11 22 2 13 22 11 13 3 11" className="fill-primary/20" />
+                </svg>
+                <span className="font-bold text-xl tracking-tight text-[#0F172A] dark:text-white">NAVIX</span>
               </div>
-              <CardTitle className="text-2xl font-bold text-white">Sign In</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardTitle className="text-2xl font-bold text-[#0F172A] dark:text-white">Sign In</CardTitle>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
                 Enter your credentials or select a simulator role.
               </CardDescription>
             </CardHeader>
@@ -147,9 +166,9 @@ export default function LoginPage() {
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-slate-300">Email Address</Label>
+                  <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">Email Address</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                     <Input
                       id="email"
                       type="email"
@@ -164,7 +183,7 @@ export default function LoginPage() {
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-slate-300">Password</Label>
+                    <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">Password</Label>
                     <button
                       type="button"
                       onClick={() => toast("Mock Password reset email initiated!", "info")}
@@ -174,7 +193,7 @@ export default function LoginPage() {
                     </button>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}

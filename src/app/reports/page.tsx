@@ -143,7 +143,7 @@ export default function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `transitops_${reportType.toLowerCase()}_audit_report.csv`);
+    link.setAttribute("download", `navix_${reportType.toLowerCase()}_audit_report.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -202,7 +202,7 @@ export default function ReportsPage() {
             </div>
             <div className="text-right">
               <span className="block font-bold text-xs uppercase text-slate-500 tracking-wider">Operational Audit</span>
-              <span className="text-sm font-semibold text-primary">TransitOps Core Services</span>
+              <span className="text-sm font-semibold text-primary">NAVIX Core Services</span>
             </div>
           </div>
         </div>
